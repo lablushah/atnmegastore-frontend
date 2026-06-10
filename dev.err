@@ -1,0 +1,749 @@
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/products" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+⨯ Error: The default export is not a React Component in "/products/[slug]/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/products/[slug]/page"
+    at ignore-listed frames {
+  page: '/products/ekattorer-mujib-2023-mohiuddin-ahmad'
+}
+⨯ Error: The default export is not a React Component in "/products/[slug]/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/products/[slug]/page"
+    at ignore-listed frames {
+  page: '/products/ekattorer-mujib-2023-mohiuddin-ahmad'
+}
+[browser] Uncaught Error: The default export is not a React Component in "/products/[slug]/page"
+⨯ Error: The default export is not a React Component in "/products/[slug]/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/products/[slug]/page"
+    at ignore-listed frames {
+  page: '/products/nishiddha-koyekjon-asif-nazrul'
+}
+⨯ Error: The default export is not a React Component in "/products/[slug]/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/products/[slug]/page"
+    at ignore-listed frames {
+  page: '/products/nishiddha-koyekjon-asif-nazrul'
+}
+[browser] Uncaught Error: The default export is not a React Component in "/products/[slug]/page"
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/products" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/products" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+[browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/checkout" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                            <script>
+                            <Fe>
+                            ...
+                              <div className="border-t p...">
+                                <div className="flex justi...">
+                                  <span>
+                                  <span>
++                                   175.00
+-                                   0.00
+                                ...
+                  ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at span (<anonymous>)
+    at CheckoutForm (src/app/checkout/page.tsx:520:38)
+    at CheckoutPage (src/app/checkout/page.tsx:585:7)
+  518 |             <div className="border-t pt-4 space-y-2 text-sm">
+  519 |               <div className="flex justify-between text-gray-600">
+> 520 |                 <span>Subtotal</span><span>${total().toFixed(2)}</span>
+      |                                      ^
+  521 |               </div>
+  522 |               {coupon && (
+  523 |                 <div className="flex justify-between text-green-700 font-medium">
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/admin" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+⨯ Error: The default export is not a React Component in "/admin/slides/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/admin/slides/page"
+    at ignore-listed frames {
+  page: '/admin/slides'
+}
+⨯ Error: The default export is not a React Component in "/admin/slides/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/admin/slides/page"
+    at ignore-listed frames {
+  page: '/admin/slides'
+}
+[browser] Uncaught Error: The default export is not a React Component in "/admin/slides/page"
+⨯ Error: The default export is not a React Component in "/admin/slides/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/admin/slides/page"
+    at ignore-listed frames {
+  page: '/admin/slides'
+}
+[browser] Uncaught Error: The default export is not a React Component in "/admin/slides/page"
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+⨯ Error: The default export is not a React Component in "/admin/customers/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/admin/customers/page"
+    at ignore-listed frames {
+  page: '/admin/customers'
+}
+⨯ Error: The default export is not a React Component in "/admin/customers/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/admin/customers/page"
+    at ignore-listed frames {
+  page: '/admin/customers'
+}
+[browser] Uncaught Error: The default export is not a React Component in "/admin/customers/page"
+⨯ Error: The default export is not a React Component in "/admin/customers/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/admin/customers/page"
+    at ignore-listed frames {
+  page: '/admin/customers'
+}
+[browser] Uncaught Error: The default export is not a React Component in "/admin/customers/page"
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames {
+  page: '/admin/products'
+}
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames {
+  page: '/admin/products'
+}
+[browser] Uncaught Error: The default export is not a React Component in "/admin/products/page"
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames {
+  page: '/admin/products'
+}
+[browser] Uncaught Error: The default export is not a React Component in "/admin/products/page"
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames {
+  page: '/admin/products'
+}
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames {
+  page: '/admin/products'
+}
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames {
+  page: '/admin/products'
+}
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames
+⨯ Error: The default export is not a React Component in "/admin/products/page"
+    at ignore-listed frames {
+  page: '/admin/products'
+}
+[browser] Uncaught Error: The default export is not a React Component in "/admin/products/page"
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/admin/cat..." notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+[browser] Uncaught TypeError: filtered.map is not a function
+    at AdminNewsletterPage (src/app/admin/newsletter-subscribers/page.tsx:80:28)
+  78 |               {filtered.length === 0 ? (
+  79 |                 <tr><td colSpan={4} className="py-8 text-center text-[#6b6b6b]">No subscri...
+> 80 |               ) : filtered.map(s => (
+     |                            ^
+  81 |                 <tr key={s.id} className="hover:bg-gray-50">
+  82 |                   <td className="py-3 px-4 border-b border-gray-50 font-medium text-[#1a1a...
+  83 |                   <td className="py-3 px-4 border-b border-gray-50 text-[#6b6b6b]">{s.name...
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/admin" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/products/..." notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1299.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+Error: Route "/maintenance" used `searchParams.msg`. `searchParams` is a Promise and must be unwrapped with `await` or `React.use()` before accessing its properties. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at MaintenancePage (src\app\maintenance\page.tsx:11:32)
+   9 |
+  10 | export default function MaintenancePage({ searchParams }: Props) {
+> 11 |   const message = searchParams.msg ?? 'We are currently performing scheduled maintenance. ...
+     |                                ^
+  12 |   const eta     = searchParams.eta ?? null;
+  13 |
+  14 |   return (
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en" className="inter_5901...">
+                          <body
+                            className="min-h-screen flex flex-col bg-[#fdf8f2] text-[#1a1a1a] font-sans"
+-                           data-new-gr-c-s-check-loaded="14.1138.0"
+-                           data-gr-ext-installed=""
+                          >
+                  ...
+ 
+Error: Route "/maintenance" used `searchParams.msg`. `searchParams` is a Promise and must be unwrapped with `await` or `React.use()` before accessing its properties. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at MaintenancePage (src\app\maintenance\page.tsx:11:32)
+   9 |
+  10 | export default function MaintenancePage({ searchParams }: Props) {
+> 11 |   const message = searchParams.msg ?? 'We are currently performing scheduled maintenance. ...
+     |                                ^
+  12 |   const eta     = searchParams.eta ?? null;
+  13 |
+  14 |   return (
+Error: Route "/maintenance" used `searchParams.msg`. `searchParams` is a Promise and must be unwrapped with `await` or `React.use()` before accessing its properties. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at MaintenancePage (src\app\maintenance\page.tsx:11:32)
+   9 |
+  10 | export default function MaintenancePage({ searchParams }: Props) {
+> 11 |   const message = searchParams.msg ?? 'We are currently performing scheduled maintenance. ...
+     |                                ^
+  12 |   const eta     = searchParams.eta ?? null;
+  13 |
+  14 |   return (
+Error: Route "/maintenance" used `searchParams.msg`. `searchParams` is a Promise and must be unwrapped with `await` or `React.use()` before accessing its properties. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+    at MaintenancePage (src\app\maintenance\page.tsx:11:32)
+   9 |
+  10 | export default function MaintenancePage({ searchParams }: Props) {
+> 11 |   const message = searchParams.msg ?? 'We are currently performing scheduled maintenance. ...
+     |                                ^
+  12 |   const eta     = searchParams.eta ?? null;
+  13 |
+  14 |   return (
