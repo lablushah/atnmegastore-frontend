@@ -8,32 +8,6 @@ import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import { Gift, User, MessageSquare, CheckCircle, ArrowLeft, Send, CreditCard, Smartphone, Store, Info, Clock } from 'lucide-react';
 
-/* ── Inline ATN logo as SVG (matches Logo.tsx exactly) ── */
-function AtnLogo({ scale = 1 }: { scale?: number }) {
-  const w = Math.round(140 * scale);
-  const h = Math.round(78 * scale);
-  return (
-    <svg width={w} height={h} viewBox="0 0 140 78" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="29" r="14" fill="#1a6b22" stroke="#0d4815" strokeWidth="0.4" />
-      <text x="32" y="29" textAnchor="middle" dominantBaseline="central"
-        fill="#e8201a" stroke="#FFD700" strokeWidth="0.8" paintOrder="stroke"
-        fontSize="16" fontWeight="900" fontFamily='"Arial Black",Impact,Arial,sans-serif'>A</text>
-      <circle cx="70" cy="23" r="20" fill="#1a6b22" stroke="#0d4815" strokeWidth="0.4" />
-      <text x="70" y="23" textAnchor="middle" dominantBaseline="central"
-        fill="#e8201a" stroke="#FFD700" strokeWidth="0.8" paintOrder="stroke"
-        fontSize="23" fontWeight="900" fontFamily='"Arial Black",Impact,Arial,sans-serif'>T</text>
-      <circle cx="108" cy="29" r="14" fill="#1a6b22" stroke="#0d4815" strokeWidth="0.4" />
-      <text x="108" y="29" textAnchor="middle" dominantBaseline="central"
-        fill="#e8201a" stroke="#FFD700" strokeWidth="0.8" paintOrder="stroke"
-        fontSize="16" fontWeight="900" fontFamily='"Arial Black",Impact,Arial,sans-serif'>N</text>
-      <rect x="0.5" y="47.5" width="139" height="28" rx="3" ry="3"
-        fill="#FFD700" stroke="#1a6b22" strokeWidth="1.2" />
-      <text x="70" y="62" textAnchor="middle" dominantBaseline="central"
-        fill="#213885" fontSize="13" fontWeight="900"
-        fontFamily='Georgia,"Palatino Linotype",serif' letterSpacing="2.5">MEGA STORE</text>
-    </svg>
-  );
-}
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -86,7 +60,7 @@ function GiftCardVisual({ amount, code }: { amount: number; code?: string }) {
       <div className="relative z-10 flex-1 flex flex-col px-5 py-3 sm:px-6 sm:py-4">
         {/* Top row: logo left, GIFT CARD right */}
         <div className="flex items-start justify-between">
-          <AtnLogo scale={0.5} />
+          <img src="/logo.svg" alt="ATN Mega Store" style={{ height: 32, width: 'auto' }} />
           <div className="text-right">
             <p style={{ color: '#893172', fontSize: 9, letterSpacing: 4, textTransform: 'uppercase', fontWeight: 700 }}>Digital</p>
             <p style={{ color: '#fff', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', fontWeight: 800, marginTop: 1 }}>Gift Card</p>
