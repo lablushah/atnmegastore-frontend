@@ -23,6 +23,13 @@ export async function proxy(request: NextRequest) {
       return intlResponse;
     }
 
+    // Env-var maintenance override (works even when API is unreachable)
+    if (process.env.MAINTENANCE_MODE === 'true') {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${intlResponse.headers.get('x-next-intl-locale') ?? 'en'}/maintenance`;
+      return NextResponse.rewrite(url);
+    }
+
     // Check maintenance mode, preserving intl locale headers
     try {
       const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api';
