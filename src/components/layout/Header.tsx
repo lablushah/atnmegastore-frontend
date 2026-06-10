@@ -91,7 +91,7 @@ export default function Header() {
 
             <Link href="/" className="shrink-0 flex items-center">
               {settings.logo_url
-                ? <img src={settings.logo_url} alt={settings.site_name} className="h-10 w-auto object-contain" />
+                ? <img src={settings.logo_url} alt={settings.site_name} className="h-10 w-auto object-contain max-w-[120px] sm:max-w-[200px]" />
                 : <Logo size="sm" />}
             </Link>
 
