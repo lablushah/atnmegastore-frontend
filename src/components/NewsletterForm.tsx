@@ -9,12 +9,12 @@ export default function NewsletterForm() {
   const [honeypot,  setHoneypot]  = useState('');
   const [loading,   setLoading]   = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     try {
       await api.post('/newsletter/subscribe', { email, website: honeypot || undefined });
-      toast.success('Subscribed! Thank you.');
+      toast.success('Almost done! Check your inbox to confirm your subscription.');
       setEmail('');
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Already subscribed or invalid email.');
