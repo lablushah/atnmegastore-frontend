@@ -12,7 +12,7 @@ import {
   LayoutDashboard, ShoppingBag, Tag, Package, Users,
   UserCircle, Mail, Newspaper, ChevronRight, Menu,
   LogOut, Image, FileText, Megaphone, Ticket, Truck, Settings, ShieldAlert,
-  Store, ExternalLink, CreditCard, Share2, ClipboardList, Gift, CalendarDays, BookOpen, Hash, HardDrive,
+  Store, ExternalLink, CreditCard, Share2, ClipboardList, Gift, CalendarDays, BookOpen, Hash, HardDrive, HelpCircle,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -135,6 +135,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Dashboard + Tasks — ungrouped */}
         <NavLink href="/admin" icon={LayoutDashboard} label="Dashboard" />
         <NavLink href="/admin/tasks" icon={ClipboardList} label="Tasks" />
+        <NavLink href="/admin/help" icon={HelpCircle} label="Help Centre" />
 
         {/* Grouped sections */}
         {navGroups.map(group => (
@@ -208,6 +209,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         >
           <Package className="w-4 h-4" />
           <span>My Orders</span>
+        </Link>
+
+        <Link
+          href="/admin/help"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-[#213885] hover:bg-gray-50 rounded-lg transition-colors"
+          title="Help Centre"
+        >
+          <HelpCircle className="w-4 h-4" />
+          <span className="hidden sm:inline">Help</span>
         </Link>
 
         {/* Divider */}
