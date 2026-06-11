@@ -11,13 +11,13 @@ const SKIP_PREFIXES = [
   '/_next', '/api', '/favicon', '/logo', '/robots', '/sitemap',
 ];
 
-// Paths that skip maintenance (by suffix, handles any locale prefix e.g. /en/login)
-const SKIP_SUFFIXES = ['/login', '/2fa/verify', '/2fa/setup'];
+// Suffixes that still get locale routing but bypass the maintenance redirect
+const MAINTENANCE_EXEMPT_SUFFIXES = ['/login', '/2fa/verify', '/2fa/setup'];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const skip = SKIP_PREFIXES.some((p) => pathname.startsWith(p)) ||
-               SKIP_SUFFIXES.some((s) => pathname.endsWith(s));
+  const skip = SKIP_PREFIXES.some((p) => pathname.startsWith(p));
+  const maintenanceExempt = MAINTENANCE_EXEMPT_SUFFIXES.some((s) => pathname.endsWith(s));
 
   // Run locale middleware for all public routes
   if (!skip) {
@@ -27,31 +27,33 @@ export async function proxy(request: NextRequest) {
       return intlResponse;
     }
 
-    // Env-var maintenance override (works even when API is unreachable)
-    if (process.env.MAINTENANCE_MODE === 'true') {
-      const url = request.nextUrl.clone();
-      url.pathname = `/${intlResponse.headers.get('x-next-intl-locale') ?? 'en'}/maintenance`;
-      return NextResponse.rewrite(url);
-    }
-
-    // Check maintenance mode, preserving intl locale headers
-    try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api';
-      const res = await fetch(`${apiBase}/maintenance`, {
-        headers: { Accept: 'application/json' },
-      });
-      if (res.ok) {
-        const data: { enabled: boolean; message: string; return_time: string | null } = await res.json();
-        if (data.enabled) {
-          const url = request.nextUrl.clone();
-          url.pathname = `/${intlResponse.headers.get('x-next-intl-locale') ?? 'en'}/maintenance`;
-          url.searchParams.set('msg', data.message);
-          if (data.return_time) url.searchParams.set('eta', data.return_time);
-          return NextResponse.rewrite(url);
-        }
+    if (!maintenanceExempt) {
+      // Env-var maintenance override (works even when API is unreachable)
+      if (process.env.MAINTENANCE_MODE === 'true') {
+        const url = request.nextUrl.clone();
+        url.pathname = `/${intlResponse.headers.get('x-next-intl-locale') ?? 'en'}/maintenance`;
+        return NextResponse.rewrite(url);
       }
-    } catch {
-      // API unreachable — let through
+
+      // Check maintenance mode, preserving intl locale headers
+      try {
+        const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api';
+        const res = await fetch(`${apiBase}/maintenance`, {
+          headers: { Accept: 'application/json' },
+        });
+        if (res.ok) {
+          const data: { enabled: boolean; message: string; return_time: string | null } = await res.json();
+          if (data.enabled) {
+            const url = request.nextUrl.clone();
+            url.pathname = `/${intlResponse.headers.get('x-next-intl-locale') ?? 'en'}/maintenance`;
+            url.searchParams.set('msg', data.message);
+            if (data.return_time) url.searchParams.set('eta', data.return_time);
+            return NextResponse.rewrite(url);
+          }
+        }
+      } catch {
+        // API unreachable — let through
+      }
     }
 
     return intlResponse;
