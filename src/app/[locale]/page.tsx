@@ -36,7 +36,7 @@ async function serverFetch(path: string, fallback: any = [], revalidate = 300) {
 
 // Shorter TTL for content that changes more often
 async function serverFetchLive(path: string, fallback: any = []) {
-  return serverFetch(path, fallback, 60);
+  return serverFetch(path, fallback, 30);
 }
 
 async function getFeaturedProducts(): Promise<Product[]> { return serverFetch('/products/featured'); }           // 5 min
