@@ -11,9 +11,13 @@ const SKIP_PREFIXES = [
   '/_next', '/api', '/favicon', '/logo', '/robots', '/sitemap',
 ];
 
+// Paths that skip maintenance (by suffix, handles any locale prefix e.g. /en/login)
+const SKIP_SUFFIXES = ['/login', '/2fa/verify', '/2fa/setup'];
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const skip = SKIP_PREFIXES.some((p) => pathname.startsWith(p));
+  const skip = SKIP_PREFIXES.some((p) => pathname.startsWith(p)) ||
+               SKIP_SUFFIXES.some((s) => pathname.endsWith(s));
 
   // Run locale middleware for all public routes
   if (!skip) {
