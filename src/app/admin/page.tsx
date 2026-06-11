@@ -13,7 +13,7 @@ import {
   Package, ShoppingBag, DollarSign, Clock, Users, UserCircle,
   Mail, Newspaper, Tag, Image, Wrench, ToggleLeft, ToggleRight,
   Share2, Ticket, CheckCircle, Circle, AlertTriangle, ClipboardList,
-  TrendingUp, TrendingDown, CreditCard, FileText, Megaphone, Truck, Settings, Gift,
+  TrendingUp, TrendingDown, Truck, Settings, Gift,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import dynamic from 'next/dynamic';
@@ -177,11 +177,6 @@ export default function AdminDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {maintenance && (
-            <span className="flex items-center gap-1.5 bg-amber-50 border border-amber-300 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded">
-              <Wrench className="w-3.5 h-3.5" /> Maintenance ON
-            </span>
-          )}
           {canManageEmployees(user) && maintenance !== null && (
             <button onClick={toggleMaintenance} disabled={toggling}
               className={`flex items-center gap-2 px-3 py-2 border text-sm font-medium transition-colors disabled:opacity-50 ${
