@@ -89,7 +89,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       title: 'Marketing',
       items: [
         canManageCampaigns(user)   && { href: '/admin/campaigns',              icon: Mail,     label: 'Email Campaigns' },
-        canManageCampaigns(user)   && { href: '/admin/newsletter-subscribers', icon: Newspaper,label: 'Newsletter' },
+        canManageCampaigns(user)   && { href: '/admin/newsletter-subscribers', icon: Newspaper,label: 'Subscribers' },
         canManageSocialPosts(user) && { href: '/admin/social-posts',           icon: Share2,   label: 'Social Posts' },
       ].filter(Boolean) as NavItem[],
     },
