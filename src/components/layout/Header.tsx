@@ -87,11 +87,11 @@ export default function Header() {
       {/* ── Main header ── */}
       <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 h-16">
+          <div className="flex items-center gap-4 h-20">
 
-            <Link href="/" className="shrink-0 flex items-center">
+            <Link href="/" className="shrink-0 flex items-center py-1">
               {settings.logo_url
-                ? <img src={settings.logo_url} alt={settings.site_name} className="h-10 w-auto object-contain max-w-[120px] sm:max-w-[200px]" />
+                ? <img src={settings.logo_url} alt={settings.site_name} className="h-14 w-auto object-contain max-w-[130px] sm:max-w-[220px]" />
                 : <Logo size="sm" />}
             </Link>
 
