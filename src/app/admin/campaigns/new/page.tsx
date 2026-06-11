@@ -178,7 +178,7 @@ const TEMPLATES: Template[] = [
       { t: 'button' },
     ],
     content: [
-      { type:'promo',    content:'🙏 Welcome to ATN Mega Store!', code:'WELCOME10', subtext:'10% off your first order — no minimum', bg:'#213885' },
+      { type:'promo',    content:'🙏 Welcome to ATN Book & Crafts!', code:'WELCOME10', subtext:'10% off your first order — no minimum', bg:'#213885' },
       { type:'heading',  content:'Your Welcome Discount Is Ready', align:'center' },
       { type:'text',     content:"Thank you for subscribing! We're Toronto's largest Bengali bookstore, located in Bangla Town. We carry Bengali novels, Islamic literature, children's books, cultural gifts, and much more.\n\nAs a welcome gift, use code WELCOME10 for 10% off your first order. Valid for 30 days." },
       { type:'products', items:[
@@ -402,7 +402,7 @@ export default function NewCampaignPage() {
       const { data } = await api.post('/admin/campaigns', {
         title:      template.name,
         subject:    '[Edit subject line here]',
-        from_name:  'ATN Mega Store',
+        from_name:  'ATN Book & Crafts',
         from_email: 'info@atnmegastore.ca',
         recipients: 'newsletter',
         content:    template.content,

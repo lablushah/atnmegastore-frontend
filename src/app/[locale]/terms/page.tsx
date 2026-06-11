@@ -23,8 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const page = await fetchCmsPage('terms');
   const title = page?.meta_title || page?.title || 'Terms of Service';
   return {
-    title:       `${title} — ATN Mega Store`,
-    description: page?.meta_description || 'Terms and conditions for using ATN Mega Store and placing orders.',
+    title:       `${title} — ATN Book & Crafts`,
+    description: page?.meta_description || 'Terms and conditions for using ATN Book & Crafts and placing orders.',
   };
 }
 

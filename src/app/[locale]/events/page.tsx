@@ -92,7 +92,7 @@ export default function EventsPage() {
       <div className="mb-10 text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-3">In-Store Events</h1>
         <p className="text-gray-500 max-w-xl mx-auto">
-          Join us at ATN Mega Store for book signings, cultural celebrations, author readings, and community gatherings.
+          Join us at ATN Book & Crafts for book signings, cultural celebrations, author readings, and community gatherings.
         </p>
       </div>
 

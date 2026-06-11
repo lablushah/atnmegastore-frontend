@@ -41,7 +41,7 @@ const TEMPLATES = [
     id: 'product',
     icon: ImageIcon,
     label: 'Product Feature',
-    content: '📚 Now available at ATN Mega Store!\n\n[Book / Product Name]\n\n🔖 [Price]\n\nOrder now at atnmegastore.ca\n\n#ATNMegaStore #Books #Canada',
+    content: '📚 Now available at ATN Book & Crafts!\n\n[Book / Product Name]\n\n🔖 [Price]\n\nOrder now at atnmegastore.ca\n\n#ATNMegaStore #Books #Canada',
     imageUrl: '',
   },
   {
@@ -233,7 +233,7 @@ export default function NewSocialPostPage() {
   const [publishing, setPublishing] = useState(false);
   const [credentials, setCredentials] = useState<Credentials>({ facebook: false, instagram: false, twitter: false });
 
-  const storeName = 'ATN Mega Store';
+  const storeName = 'ATN Book & Crafts';
 
   useEffect(() => {
     if (!user) { router.push('/login'); return; }

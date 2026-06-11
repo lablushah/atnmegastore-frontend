@@ -126,7 +126,7 @@ export default function EventDetailPage() {
           )}
 
           <div className="text-center">
-            <p className="text-sm text-gray-500">ATN Mega Store</p>
+            <p className="text-sm text-gray-500">ATN Book & Crafts</p>
             <p className="text-sm text-gray-400">Bangla Town, Toronto, ON</p>
           </div>
         </div>

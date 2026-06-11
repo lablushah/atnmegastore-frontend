@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import api from '@/lib/api';
 
@@ -25,7 +25,7 @@ export interface SiteSettings {
 }
 
 const DEFAULTS: SiteSettings = {
-  site_name:        'ATN Mega Store',
+  site_name:        'ATN Book & Crafts',
   site_tagline:     "North America's largest Bengali bookstore & crafts shop — serving Toronto's Bangla Town for over 20 years.",
   site_email:       'info@atnmegastore.ca',
   site_phone:       '416-671-6382',
@@ -43,7 +43,7 @@ const DEFAULTS: SiteSettings = {
   twitter_url:      '',
   youtube_url:      '',
   meta_description: "Toronto's destination for Bengali books, Islamic literature, cultural crafts, and unique gifts.",
-  meta_keywords:    'Bengali books Toronto, Islamic books Canada, cultural gifts, ATN Mega Store',
+  meta_keywords:    'Bengali books Toronto, Islamic books Canada, cultural gifts, ATN Book & Crafts',
 };
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes

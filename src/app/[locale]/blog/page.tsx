@@ -52,7 +52,7 @@ export default function BlogPage() {
           Articles & Stories
         </h1>
         <p className="text-gray-500 max-w-xl mx-auto text-sm leading-relaxed">
-          Reading inspiration, cultural greetings, gift guides, and community stories from the ATN Mega Store family.
+          Reading inspiration, cultural greetings, gift guides, and community stories from the ATN Book & Crafts family.
         </p>
       </div>
 

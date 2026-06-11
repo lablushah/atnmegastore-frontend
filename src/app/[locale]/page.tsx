@@ -13,14 +13,14 @@ const SERVER_API = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api
 const SITE_URL   = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://atnmegastore.ca';
 
 export const metadata: Metadata = {
-  title:       'ATN Mega Store — Bengali Books & Gifts | Toronto',
+  title:       'ATN Book & Crafts — Bengali Books & Gifts | Toronto',
   description: "Toronto's largest Bengali bookstore and gift shop. Browse books, Islamic literature, cultural crafts, and unique gifts. Shop online or visit us in Bangla Town.",
-  keywords:    'Bengali books Toronto, Islamic books Toronto, South Asian gifts, Bengali bookstore Canada, ATN Mega Store, Bangla Town Toronto',
+  keywords:    'Bengali books Toronto, Islamic books Toronto, South Asian gifts, Bengali bookstore Canada, ATN Book & Crafts, Bangla Town Toronto',
   openGraph: {
-    title:       'ATN Mega Store — Bengali Books & Gifts | Toronto',
+    title:       'ATN Book & Crafts — Bengali Books & Gifts | Toronto',
     description: "Toronto's largest Bengali bookstore. Books, Islamic literature, cultural crafts, and gifts — online and in Bangla Town.",
     url:         SITE_URL,
-    siteName:    'ATN Mega Store',
+    siteName:    'ATN Book & Crafts',
     locale:      'en_CA',
     type:        'website',
   },

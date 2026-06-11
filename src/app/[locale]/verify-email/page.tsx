@@ -34,7 +34,7 @@ function VerifyEmailContent() {
       .then(({ data }) => {
         setAuth(data.user, data.token);
         setStatus('success');
-        toast.success('Email verified! Welcome to ATN Mega Store.');
+        toast.success('Email verified! Welcome to ATN Book & Crafts.');
         setTimeout(() => router.push('/'), 2500);
       })
       .catch((err) => {

@@ -2,7 +2,7 @@
 import { MapPin, Clock, Phone, Mail, Car, Bus, ChevronRight, Store } from 'lucide-react';
 import { getSettings } from '@/lib/settings';
 
-export const metadata = { title: 'Store Location & Hours — ATN Mega Store' };
+export const metadata = { title: 'Store Location & Hours — ATN Book & Crafts' };
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { Inter, Playfair_Display, Noto_Sans_Bengali } from 'next/font/google';
 import { getLocale } from 'next-intl/server';
 import './globals.css';
@@ -13,14 +13,14 @@ const bengali  = Noto_Sans_Bengali({ subsets: ['bengali'], weight: ['400', '700'
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://atnmegastore.ca'),
   title: {
-    default:  'ATN Mega Store — Bengali Books & Gifts | Toronto',
-    template: '%s | ATN Mega Store',
+    default:  'ATN Book & Crafts — Bengali Books & Gifts | Toronto',
+    template: '%s | ATN Book & Crafts',
   },
   description: "Toronto's destination for Bengali books, Islamic literature, cultural crafts, and unique gifts. Shop online or visit us in Bangla Town.",
-  keywords:    ['Bengali books', 'Islamic books', 'Toronto bookstore', 'Bengali gifts', 'ATN Mega Store', 'Bangla Town'],
-  authors:     [{ name: 'ATN Mega Store' }],
+  keywords:    ['Bengali books', 'Islamic books', 'Toronto bookstore', 'Bengali gifts', 'ATN Book & Crafts', 'Bangla Town'],
+  authors:     [{ name: 'ATN Book & Crafts' }],
   openGraph: {
-    siteName: 'ATN Mega Store',
+    siteName: 'ATN Book & Crafts',
     type:     'website',
   },
   robots: {

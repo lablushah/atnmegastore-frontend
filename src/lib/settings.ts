@@ -1,7 +1,7 @@
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api';
+﻿const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api';
 
 const DEFAULTS: Record<string, string> = {
-  site_name:      'ATN Mega Store',
+  site_name:      'ATN Book & Crafts',
   site_email:     'info@atnmegastore.ca',
   site_phone:     '416-671-6382',
   site_phone_2:   '416-686-3134',

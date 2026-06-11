@@ -1,4 +1,4 @@
-interface LogoProps {
+﻿interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
@@ -10,7 +10,7 @@ export default function Logo({ size = 'md', className = '' }: LogoProps) {
   return (
     <img
       src="/logo.svg"
-      alt="ATN Mega Store"
+      alt="ATN Book & Crafts"
       height={h}
       style={{ height: h, width: 'auto', display: 'block' }}
       className={className}

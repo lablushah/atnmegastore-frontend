@@ -23,8 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const page = await fetchCmsPage('privacy-policy');
   const title = page?.meta_title || page?.title || 'Privacy Policy';
   return {
-    title:       `${title} — ATN Mega Store`,
-    description: page?.meta_description || 'How ATN Mega Store collects, uses, and protects your personal information.',
+    title:       `${title} — ATN Book & Crafts`,
+    description: page?.meta_description || 'How ATN Book & Crafts collects, uses, and protects your personal information.',
   };
 }
 

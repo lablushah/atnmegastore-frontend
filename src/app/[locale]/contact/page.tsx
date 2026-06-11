@@ -2,7 +2,7 @@
 import { Mail, Clock, Phone, MapPin, ChevronRight } from 'lucide-react';
 import { getSettings } from '@/lib/settings';
 
-export const metadata = { title: 'Contact Us — ATN Mega Store' };
+export const metadata = { title: 'Contact Us — ATN Book & Crafts' };
 
 export default async function ContactPage() {
   const s = await getSettings();

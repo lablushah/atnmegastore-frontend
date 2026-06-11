@@ -107,7 +107,7 @@ export default function CampaignEditorPage() {
   const id = params?.id as string;
 
   const [meta, setMeta]         = useState<CampaignMeta>({
-    title: '', subject: '', preview_text: '', from_name: 'ATN Mega Store', from_email: 'info@atnmegastore.ca',
+    title: '', subject: '', preview_text: '', from_name: 'ATN Book & Crafts', from_email: 'info@atnmegastore.ca',
   });
   const [blocks, setBlocks]     = useState<Block[]>([]);
   const [status, setStatus]     = useState('draft');
@@ -143,7 +143,7 @@ export default function CampaignEditorPage() {
         title:        data.title        ?? '',
         subject:      data.subject      ?? '',
         preview_text: data.preview_text ?? '',
-        from_name:    data.from_name    ?? 'ATN Mega Store',
+        from_name:    data.from_name    ?? 'ATN Book & Crafts',
         from_email:   data.from_email   ?? 'info@atnmegastore.ca',
       });
       setBlocks(data.content ?? []);

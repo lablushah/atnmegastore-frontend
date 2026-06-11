@@ -3,7 +3,7 @@ import { getSettings } from '@/lib/settings';
 import { ChevronRight, BookOpen, Heart, Globe, ShieldCheck } from 'lucide-react';
 
 export const metadata = {
-  title: 'About Us — ATN Mega Store',
+  title: 'About Us — ATN Book & Crafts',
   description: "North America's largest Bengali bookstore and crafts shop, located in Toronto's Bangla Town for over 20 years.",
 };
 
@@ -49,7 +49,7 @@ export default async function AboutPage() {
             Toronto's Home for<br />Bengali Books & Culture
           </h1>
           <p className="text-[#f0c0a0] text-base sm:text-lg max-w-2xl leading-relaxed">
-            Situated in the heart of Danforth &amp; Victoria Park — Toronto's vibrant Bangla Town — ATN Mega Store
+            Situated in the heart of Danforth &amp; Victoria Park — Toronto's vibrant Bangla Town — ATN Book & Crafts
             is one of North America's largest bookstores and crafts shops dedicated to Bengali and South Asian culture.
           </p>
         </div>
@@ -66,7 +66,7 @@ export default async function AboutPage() {
             </h2>
             <div className="space-y-4 text-[#444] text-sm leading-relaxed">
               <p>
-                ATN Mega Store has been a cornerstone of Toronto's Bengali community for over twenty years.
+                ATN Book & Crafts has been a cornerstone of Toronto's Bengali community for over twenty years.
                 From our location on Danforth Avenue in the neighbourhood affectionately known as "Bangla Town,"
                 we have served thousands of customers with an unwavering commitment to quality and professional service.
               </p>

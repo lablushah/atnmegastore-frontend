@@ -333,7 +333,7 @@ function CheckoutForm() {
             {/* Store pickup info box */}
             {deliveryMethod === 'pickup' && (
               <div className="mt-4 bg-green-50 border border-green-200 rounded-xl p-4 space-y-2">
-                <p className="text-sm font-semibold text-green-900">ATN Mega Store — Pickup Location</p>
+                <p className="text-sm font-semibold text-green-900">ATN Book & Crafts — Pickup Location</p>
                 <div className="flex items-start gap-2 text-sm text-green-800">
                   <MapPin className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
                   <span>{s.site_address}, {s.site_city}</span>

@@ -267,7 +267,7 @@ export default function AdminGiftCardsPage() {
             <div className="flex-1 overflow-y-auto p-5 space-y-5">
               {/* Card visual */}
               <div className="bg-gradient-to-br from-[#213885] to-[#8b2444] p-5 text-white">
-                <p className="text-[#893172] text-xs tracking-widest uppercase mb-3">ATN Mega Store Gift Card</p>
+                <p className="text-[#893172] text-xs tracking-widest uppercase mb-3">ATN Book & Crafts Gift Card</p>
                 <p className="text-2xl font-bold font-mono tracking-wider mb-1">{detail.code}</p>
                 <div className="flex items-center justify-between mt-3">
                   <div>

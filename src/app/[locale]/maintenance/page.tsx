@@ -2,7 +2,7 @@
 import { Clock, Mail, Phone, Wrench } from 'lucide-react';
 import Logo from '@/components/Logo';
 
-export const metadata: Metadata = { title: 'Site Maintenance — ATN Megastore' };
+export const metadata: Metadata = { title: 'Site Maintenance — ATN Book & Crafts' };
 
 interface Props {
   searchParams: Promise<{ msg?: string; eta?: string }>;

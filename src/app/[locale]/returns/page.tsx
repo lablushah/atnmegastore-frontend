@@ -1,7 +1,7 @@
 import PolicyLayout from '@/components/PolicyLayout';
 import { getSettings } from '@/lib/settings';
 
-export const metadata = { title: 'Return Policy — ATN Mega Store' };
+export const metadata = { title: 'Return Policy — ATN Book & Crafts' };
 
 export default async function ReturnsPage() {
   const s = await getSettings();

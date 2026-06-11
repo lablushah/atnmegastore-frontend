@@ -230,7 +230,7 @@ export default function NewsletterPopup() {
                   You're subscribed!
                 </h3>
                 <p className="text-sm text-[#6b6b6b] mb-2">
-                  Welcome to the ATN Mega Store family. Look out for exclusive deals in your inbox.
+                  Welcome to the ATN Book & Crafts family. Look out for exclusive deals in your inbox.
                 </p>
                 {popup.discount_code && (
                   <p className="text-sm font-semibold text-[#213885]">

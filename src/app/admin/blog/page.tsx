@@ -25,7 +25,7 @@ type Post = {
 
 const EMPTY: Partial<Post> = {
   title: '', excerpt: '', body: '', cover_image: '',
-  author_name: 'ATN Mega Store', status: 'draft',
+  author_name: 'ATN Book & Crafts', status: 'draft',
 };
 
 function fmtDate(d: string) {

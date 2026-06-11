@@ -354,7 +354,7 @@ export default function EditSocialPostPage() {
             ) : platforms.map(p => (
               <div key={p}>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 px-1">{PLATFORMS.find(pl => pl.id === p)?.label}</p>
-                <PlatformPreview platform={p} content={content} imageUrl={imageUrl} storeName="ATN Mega Store" />
+                <PlatformPreview platform={p} content={content} imageUrl={imageUrl} storeName="ATN Book & Crafts" />
               </div>
             ))}
           </div>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
 import {
@@ -71,7 +71,7 @@ const ARTICLES: Article[] = [
       <div>
         <p className="text-sm text-gray-600 mb-4">Your Facebook Page ID is required to post updates directly to your Facebook page from the admin dashboard.</p>
         <H text="Method 1 — From your Page's About section" />
-        <Step n={1} text='Go to facebook.com and open your ATN Mega Store Facebook Page.' />
+        <Step n={1} text='Go to facebook.com and open your ATN Book & Crafts Facebook Page.' />
         <Step n={2} text='Click "About" in the left menu.' />
         <Step n={3} text='Scroll down to the "Page transparency" section.' />
         <Step n={4} text='Your Page ID is the long number displayed there (e.g. 123456789012345).' />
@@ -106,7 +106,7 @@ const ARTICLES: Article[] = [
         <Step n={1} text='Go to the Graph API Explorer at developers.facebook.com/tools/explorer.' />
         <Step n={2} text='Select your app from the dropdown at the top right.' />
         <Step n={3} text='Click "Generate Access Token" and grant the permissions: pages_manage_posts, pages_read_engagement.' />
-        <Step n={4} text='Click the "Get Page Access Token" option and select your ATN Mega Store page.' />
+        <Step n={4} text='Click the "Get Page Access Token" option and select your ATN Book & Crafts page.' />
         <Step n={5} text='Copy the generated token.' />
         <H text="Step 4 — Save in admin" />
         <Step n={1} text='Go to Admin → Site Settings → Social API tab.' />
@@ -127,7 +127,7 @@ const ARTICLES: Article[] = [
         <Step n={1} text='Open the Instagram app and go to your profile.' />
         <Step n={2} text='Tap the hamburger menu (☰) → Settings → Account.' />
         <Step n={3} text='Tap "Switch to Professional Account" → choose "Business".' />
-        <Step n={4} text='Follow the prompts and connect it to your ATN Mega Store Facebook Page.' />
+        <Step n={4} text='Follow the prompts and connect it to your ATN Book & Crafts Facebook Page.' />
         <H text="Step 2 — Find your Instagram Account ID" />
         <Step n={1} text='Go to the Graph API Explorer at developers.facebook.com/tools/explorer.' />
         <Step n={2} text='Using your Facebook Page Access Token, make a GET request to: /me/accounts' />
@@ -155,7 +155,7 @@ const ARTICLES: Article[] = [
         <Step n={3} text='Wait for approval — this usually takes a few minutes to a few hours.' />
         <H text="Step 2 — Create a Project and App" />
         <Step n={1} text='Once approved, go to the Developer Portal Dashboard.' />
-        <Step n={2} text='Click "New Project", give it a name (e.g. ATN Megastore), and select a use case.' />
+        <Step n={2} text='Click "New Project", give it a name (e.g. ATN Book & Crafts), and select a use case.' />
         <Step n={3} text='Inside the project, click "New App" and give it a name.' />
         <H text="Step 3 — Get your API Keys" />
         <Step n={1} text='Inside your app, go to the "Keys and Tokens" tab.' />
@@ -479,7 +479,7 @@ export default function HelpPage() {
           <BookOpen className="w-5 h-5 text-[#213885]" />
           <h1 className="text-2xl font-bold text-[#1a1a1a]">Help Centre</h1>
         </div>
-        <p className="text-sm text-gray-500">Step-by-step guides for managing the ATN Mega Store.</p>
+        <p className="text-sm text-gray-500">Step-by-step guides for managing the ATN Book & Crafts.</p>
       </div>
 
       {/* Search */}

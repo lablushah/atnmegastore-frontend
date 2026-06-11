@@ -23,8 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const page = await fetchCmsPage('cookies');
   const title = page?.meta_title || page?.title || 'Cookie Policy';
   return {
-    title:       `${title} — ATN Mega Store`,
-    description: page?.meta_description || 'How ATN Mega Store uses cookies and browser storage technologies.',
+    title:       `${title} — ATN Book & Crafts`,
+    description: page?.meta_description || 'How ATN Book & Crafts uses cookies and browser storage technologies.',
   };
 }
 
