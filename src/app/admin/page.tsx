@@ -198,7 +198,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-3">
           {statCards.map(({ icon: Icon, color, label, value, sub }) => (
             <div key={label} className="bg-white border border-[#cccacc] p-4">
-              <div className={`inline-flex p-2 mb-2 ${color}`}><Icon className="w-4 h-4" /></div>
+              <div className={`inline-flex p-1.5 mb-2 ${color}`}><Icon className="w-5 h-5" /></div>
               <p className="text-xs text-[#6b6b6b] leading-tight">{label}</p>
               <p className="text-xl font-bold text-[#1a1a1a] mt-0.5 leading-tight">{value}</p>
               {sub && (
