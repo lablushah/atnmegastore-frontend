@@ -16,7 +16,7 @@
       Logo content right edge lands at x≈185, giving 10 px clearance to the V-point.
   -->
   <path d="M 0,0 L 220,0 L 195,65 L 220,130 L 0,130 Z"
-        fill="#C8D5ED" filter="url(#bm-shadow)"/>
+        fill="#ecdfd2" filter="url(#bm-shadow)"/>
 
   <!--
     Logo elements translated (14, 16) to centre inside the bookmark:
