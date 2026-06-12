@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -20,6 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname                        = usePathname();
   const { user, logout, _hasHydrated }  = useAuthStore();
   const [open, setOpen]                 = useState(false);
+  const [openGroups, setOpenGroups]     = useState<Set<string>>(new Set());
 
   const handleLogout = () => { logout(); window.location.href = '/'; };
 
@@ -34,15 +35,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [_hasHydrated, user, pathname]);
 
-  // Hold render until store has rehydrated from localStorage — prevents child
-  // page useEffects from seeing user=null and firing a spurious /login redirect.
+  // Auto-open the group that contains the currently active route
+  useEffect(() => {
+    if (!user) return;
+    const groupPaths: Record<string, string[]> = {
+      Catalog:        ['/admin/products', '/admin/categories'],
+      Content:        ['/admin/slides', '/admin/pages', '/admin/popups', '/admin/events', '/admin/blog', '/admin/tags'],
+      Sales:          ['/admin/orders', '/admin/customers', '/admin/discount-codes', '/admin/shipping', '/admin/gift-cards'],
+      Marketing:      ['/admin/campaigns', '/admin/newsletter-subscribers', '/admin/social-posts'],
+      Administration: ['/admin/employees', '/admin/settings', '/admin/payment-settings', '/admin/storage'],
+    };
+    const active = Object.keys(groupPaths).find(g => groupPaths[g].some(p => pathname.startsWith(p)));
+    if (active) setOpenGroups(new Set([active]));
+  }, [pathname, user]);
+
   if (!_hasHydrated) return null;
   if (!user) return null;
-
-  // Block render while redirecting to change-password
   if (user.must_change_password && pathname !== '/admin/change-password') return null;
 
-  // Show a blocker while redirecting to setup
   if (user.type === 'employee' && user.two_factor_setup_required) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -61,6 +71,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const isActive = (href: string) =>
     href === '/admin' ? pathname === '/admin' : pathname.startsWith(href);
+
+  const toggleGroup = (title: string) => {
+    setOpenGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(title)) next.delete(title);
+      else next.add(title);
+      return next;
+    });
+  };
 
   const navGroups: NavGroup[] = [
     {
@@ -84,28 +103,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     {
       title: 'Sales',
       items: [
-        canManageOrders(user)   && { href: '/admin/orders',          icon: Package,   label: 'Orders' },
-        canManageCustomers(user)&& { href: '/admin/customers',       icon: UserCircle,label: 'Customers' },
-        canManageProducts(user) && { href: '/admin/discount-codes',  icon: Ticket,    label: 'Discount Codes' },
-        canManageProducts(user) && { href: '/admin/shipping',        icon: Truck,     label: 'Shipping' },
-        canManageOrders(user)   && { href: '/admin/gift-cards',      icon: Gift,      label: 'Gift Cards' },
+        canManageOrders(user)    && { href: '/admin/orders',         icon: Package,    label: 'Orders' },
+        canManageCustomers(user) && { href: '/admin/customers',      icon: UserCircle, label: 'Customers' },
+        canManageProducts(user)  && { href: '/admin/discount-codes', icon: Ticket,     label: 'Discount Codes' },
+        canManageProducts(user)  && { href: '/admin/shipping',       icon: Truck,      label: 'Shipping' },
+        canManageOrders(user)    && { href: '/admin/gift-cards',     icon: Gift,       label: 'Gift Cards' },
       ].filter(Boolean) as NavItem[],
     },
     {
       title: 'Marketing',
       items: [
-        canManageCampaigns(user)   && { href: '/admin/campaigns',              icon: Mail,     label: 'Email Campaigns' },
-        canManageCampaigns(user)   && { href: '/admin/newsletter-subscribers', icon: Newspaper,label: 'Subscribers' },
-        canManageSocialPosts(user) && { href: '/admin/social-posts',           icon: Share2,   label: 'Social Posts' },
+        canManageCampaigns(user)   && { href: '/admin/campaigns',              icon: Mail,      label: 'Email Campaigns' },
+        canManageCampaigns(user)   && { href: '/admin/newsletter-subscribers', icon: Newspaper, label: 'Subscribers' },
+        canManageSocialPosts(user) && { href: '/admin/social-posts',           icon: Share2,    label: 'Social Posts' },
       ].filter(Boolean) as NavItem[],
     },
     {
       title: 'Administration',
       items: [
-        canManageEmployees(user) && { href: '/admin/employees',       icon: Users,      label: 'Employees' },
-        canManageEmployees(user) && { href: '/admin/settings',        icon: Settings,   label: 'Site Settings' },
-        canManageEmployees(user) && { href: '/admin/payment-settings',icon: CreditCard, label: 'Payment Methods' },
-        canManageProducts(user)  && { href: '/admin/storage',         icon: HardDrive,  label: 'Storage Cleanup' },
+        canManageEmployees(user) && { href: '/admin/employees',        icon: Users,      label: 'Employees' },
+        canManageEmployees(user) && { href: '/admin/settings',         icon: Settings,   label: 'Site Settings' },
+        canManageEmployees(user) && { href: '/admin/payment-settings', icon: CreditCard, label: 'Payment Methods' },
+        canManageProducts(user)  && { href: '/admin/storage',          icon: HardDrive,  label: 'Storage Cleanup' },
       ].filter(Boolean) as NavItem[],
     },
   ].filter(g => g.items.length > 0);
@@ -137,23 +156,40 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
-        {/* Dashboard + Tasks — ungrouped */}
-        <NavLink href="/admin" icon={LayoutDashboard} label="Dashboard" />
-        <NavLink href="/admin/tasks" icon={ClipboardList} label="Tasks" />
-        <NavLink href="/admin/help" icon={HelpCircle} label="Help Centre" />
+      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
+        {/* Dashboard + Tasks — always visible */}
+        <NavLink href="/admin"       icon={LayoutDashboard} label="Dashboard" />
+        <NavLink href="/admin/tasks" icon={ClipboardList}   label="Tasks" />
+        <NavLink href="/admin/help"  icon={HelpCircle}      label="Help Centre" />
 
-        {/* Grouped sections */}
+        {/* Divider */}
+        <div className="pt-2 pb-1">
+          <div className="border-t border-gray-100" />
+        </div>
+
+        {/* Collapsible groups */}
         {navGroups.map(group => (
           <div key={group.title}>
-            <p className="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-              {group.title}
-            </p>
-            <div className="space-y-0.5">
-              {group.items.map(item => (
-                <NavLink key={item.href} {...item} />
-              ))}
-            </div>
+            <button
+              onClick={() => toggleGroup(group.title)}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors
+                ${openGroups.has(group.title)
+                  ? 'text-[#213885] bg-blue-50'
+                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                }`}
+            >
+              <span>{group.title}</span>
+              <ChevronRight
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${openGroups.has(group.title) ? 'rotate-90' : ''}`}
+              />
+            </button>
+            {openGroups.has(group.title) && (
+              <div className="mt-0.5 mb-1 space-y-0.5">
+                {group.items.map(item => (
+                  <NavLink key={item.href} {...item} />
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </nav>
