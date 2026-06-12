@@ -12,6 +12,7 @@ import { Product } from '@/lib/types';
 import Image from 'next/image';
 import { storageUrl } from '@/lib/imageUrl';
 import { useCartStore } from '@/store/cartStore';
+import { useSiteSettingsStore } from '@/store/siteSettingsStore';
 import toast from 'react-hot-toast';
 
 interface Review {
@@ -94,6 +95,9 @@ export default function ProductDetailPage() {
   const { slug }  = useParams<{ slug: string }>();
   const router    = useRouter();
   const addItem   = useCartStore(s => s.addItem);
+  const { settings: siteSettings, fetch: fetchSiteSettings } = useSiteSettingsStore();
+  useEffect(() => { fetchSiteSettings(); }, [fetchSiteSettings]);
+  const freeShippingAmount = Math.round(siteSettings.free_shipping_threshold || 49);
 
   const [product,      setProduct]      = useState<ProductDetail | null>(null);
   const [loading,      setLoading]      = useState(true);
@@ -422,7 +426,7 @@ export default function ProductDetailPage() {
               <ul className="space-y-2 mt-1">
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#213885] mt-2 shrink-0" />
-                  <span><strong>Standard Shipping</strong> — 3–7 business days within Canada. Free on orders over $59.</span>
+                  <span><strong>Standard Shipping</strong> — 3–7 business days within Canada. Free on orders over ${freeShippingAmount}.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#213885] mt-2 shrink-0" />
