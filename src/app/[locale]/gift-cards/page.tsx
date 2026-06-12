@@ -60,7 +60,9 @@ function GiftCardVisual({ amount, code }: { amount: number; code?: string }) {
       <div className="relative z-10 flex-1 flex flex-col px-5 py-3 sm:px-6 sm:py-4">
         {/* Top row: logo left, GIFT CARD right */}
         <div className="flex items-start justify-between">
-          <img src="/logo.svg" alt="ATN Book & Crafts" style={{ height: 32, width: 'auto' }} />
+          <div style={{ background: '#fff', borderRadius: 6, padding: '4px 8px', display: 'inline-flex', alignItems: 'center' }}>
+              <img src="/logo.svg" alt="ATN Book & Crafts" style={{ height: 28, width: 'auto' }} />
+            </div>
           <div className="text-right">
             <p style={{ color: '#893172', fontSize: 9, letterSpacing: 4, textTransform: 'uppercase', fontWeight: 700 }}>Digital</p>
             <p style={{ color: '#fff', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', fontWeight: 800, marginTop: 1 }}>Gift Card</p>

@@ -26,6 +26,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (!_hasHydrated) return;
     if (!user) { window.location.href = '/login'; return; }
+    if (user.must_change_password && pathname !== '/admin/change-password') {
+      window.location.href = '/admin/change-password'; return;
+    }
     if (user.type === 'employee' && user.two_factor_setup_required && pathname !== '/2fa/setup') {
       window.location.href = '/2fa/setup';
     }
@@ -35,6 +38,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // page useEffects from seeing user=null and firing a spurious /login redirect.
   if (!_hasHydrated) return null;
   if (!user) return null;
+
+  // Block render while redirecting to change-password
+  if (user.must_change_password && pathname !== '/admin/change-password') return null;
 
   // Show a blocker while redirecting to setup
   if (user.type === 'employee' && user.two_factor_setup_required) {

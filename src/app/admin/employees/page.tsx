@@ -14,7 +14,7 @@ interface Paginated { data: Employee[]; current_page: number; last_page: number;
 
 const ROLE_LABELS: Record<string, string> = { admin: 'Administrator', product_manager: 'Product Manager', sales: 'Sales' };
 const ROLE_COLORS: Record<string, string> = { admin: 'bg-red-50 text-red-700', product_manager: 'bg-purple-50 text-purple-700', sales: 'bg-blue-50 text-blue-700' };
-const EMPTY = { name: '', email: '', password: '', role: 'sales', job_title: '', phone: '', is_active: true };
+const EMPTY = { name: '', email: '', role: 'sales', job_title: '', phone: '', is_active: true };
 
 type EditCell = { id: number; field: string } | null;
 
@@ -242,13 +242,10 @@ export default function AdminEmployeesPage() {
                   <label className="block text-xs font-medium text-gray-600 mb-1">Full Name *</label>
                   <input required value={form.name} onChange={e => set('name', e.target.value)} className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#213885]" />
                 </div>
-                <div>
+                <div className="col-span-2">
                   <label className="block text-xs font-medium text-gray-600 mb-1">Email *</label>
                   <input required type="email" value={form.email} onChange={e => set('email', e.target.value)} className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#213885]" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Password *</label>
-                  <input type="password" required value={form.password} onChange={e => set('password', e.target.value)} className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#213885]" />
+                  <p className="text-xs text-gray-400 mt-1">A temporary password will be generated and emailed to the employee automatically.</p>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Role *</label>

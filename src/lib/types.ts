@@ -91,6 +91,8 @@ export interface User {
   orders_count?: number;
   reviews_count?: number;
   created_at?: string;
+  // first-login flag
+  must_change_password?: boolean;
   // 2FA
   two_factor_enabled?: boolean;
   two_factor_method?: 'totp' | 'email' | null;
