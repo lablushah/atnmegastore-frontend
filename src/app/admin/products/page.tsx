@@ -1,11 +1,14 @@
-﻿'use client';
+'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { canManageProducts } from '@/lib/types';
 import api from '@/lib/api';
-import { Plus, Pencil, Trash2, Search, Star, Check, Upload, Link, X, Images } from 'lucide-react';
+import {
+  Plus, Pencil, Trash2, Search, Star, Check, Upload, Link, X, Images,
+  Download, FileSpreadsheet, FileText, ChevronDown, Filter,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import Spinner from '@/components/ui/Spinner';
 import TagInput from '@/components/TagInput';
@@ -22,36 +25,95 @@ interface Product {
 interface PaginatedProducts { data: Product[]; current_page: number; last_page: number; total: number; }
 
 const EMPTY = { name: '', name_secondary: '', author: '', genre: '', description: '', price: '', stock: 0, image: '', featured: false, active: true, category_id: '' };
-
 type EditCell = { id: number; field: string } | null;
+
+// ── PDF column definitions ────────────────────────────────────────────────────
+const PDF_COL_DEFS = [
+  { key: 'name',           label: 'Book Name',       defaultOn: true  },
+  { key: 'name_secondary', label: 'Secondary Name',  defaultOn: false },
+  { key: 'author',         label: 'Author',           defaultOn: true  },
+  { key: 'genre',          label: 'Genre / Type',     defaultOn: false },
+  { key: 'category',       label: 'Category',         defaultOn: false },
+  { key: 'price',          label: 'Price ($)',         defaultOn: false },
+  { key: 'stock',          label: 'Qty in Stock',     defaultOn: true  },
+  { key: 'active',         label: 'Status',           defaultOn: false },
+  { key: 'description',    label: 'Description',      defaultOn: false },
+];
+
+function getProductValue(p: Product, key: string): string {
+  switch (key) {
+    case 'name':           return p.name;
+    case 'name_secondary': return p.name_secondary ?? '';
+    case 'author':         return p.author ?? '';
+    case 'genre':          return p.genre ?? '';
+    case 'category':       return p.category?.name ?? '';
+    case 'price':          return `$${parseFloat(p.price).toFixed(2)}`;
+    case 'stock':          return String(p.stock);
+    case 'active':         return p.active ? 'Active' : 'Hidden';
+    case 'description':    return (p.description ?? '').slice(0, 80);
+    default:               return '';
+  }
+}
+
+// ── Logo → base64 for jsPDF ──────────────────────────────────────────────────
+async function logoToBase64(src: string): Promise<string | null> {
+  return new Promise(resolve => {
+    const img = new window.Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width  = img.naturalWidth  || 300;
+        canvas.height = img.naturalHeight || 90;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { resolve(null); return; }
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      } catch { resolve(null); }
+    };
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
 
 export default function AdminProductsPage() {
   const { user } = useAuthStore();
   const router = useRouter();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [page, setPage] = useState(1);
-  const [lastPage, setLastPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<Product | null>(null);
-  const [form, setForm] = useState(EMPTY);
-  const [saving, setSaving] = useState(false);
+  const [products, setProducts]         = useState<Product[]>([]);
+  const [categories, setCategories]     = useState<Category[]>([]);
+  const [page, setPage]                 = useState(1);
+  const [lastPage, setLastPage]         = useState(1);
+  const [total, setTotal]               = useState(0);
+  const [search, setSearch]             = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [loading, setLoading]           = useState(true);
+  const [showModal, setShowModal]       = useState(false);
+  const [editing, setEditing]           = useState<Product | null>(null);
+  const [form, setForm]                 = useState(EMPTY);
+  const [saving, setSaving]             = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [imageMode, setImageMode] = useState<'upload' | 'url'>('upload');
+  const [imageMode, setImageMode]       = useState<'upload' | 'url'>('upload');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [galleryImages, setGalleryImages] = useState<ProductImage[]>([]);
+  const [galleryImages, setGalleryImages]   = useState<ProductImage[]>([]);
   const [galleryLoading, setGalleryLoading] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef    = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const exportMenuRef   = useRef<HTMLDivElement>(null);
+
   // Inline edit state
-  const [editCell, setEditCell] = useState<EditCell>(null);
-  const [editValue, setEditValue] = useState('');
+  const [editCell, setEditCell]       = useState<EditCell>(null);
+  const [editValue, setEditValue]     = useState('');
   const [patchingCell, setPatchingCell] = useState<EditCell>(null);
-  const [savedCell, setSavedCell] = useState<EditCell>(null);
+  const [savedCell, setSavedCell]     = useState<EditCell>(null);
+
+  // Export state
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [showPdfModal, setShowPdfModal]     = useState(false);
+  const [pdfCols, setPdfCols]               = useState<string[]>(
+    PDF_COL_DEFS.filter(c => c.defaultOn).map(c => c.key)
+  );
+  const [exportLoading, setExportLoading] = useState(false);
 
   useEffect(() => {
     if (!user) { router.push('/login'); return; }
@@ -60,11 +122,25 @@ export default function AdminProductsPage() {
     load(1);
   }, [user]);
 
-  async function load(p: number, q?: string) {
+  // Close export menu on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
+        setShowExportMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  async function load(p: number, q?: string, cat?: string) {
     setLoading(true);
     try {
       const params: any = { page: p, per_page: 20 };
-      if (q !== undefined ? q : search) params.search = q !== undefined ? q : search;
+      const sq  = q   !== undefined ? q   : search;
+      const sca = cat !== undefined ? cat : categoryFilter;
+      if (sq)  params.search      = sq;
+      if (sca) params.category_id = sca;
       const { data } = await api.get('/admin/products', { params });
       const d: PaginatedProducts = data;
       setProducts(d.data); setPage(d.current_page); setLastPage(d.last_page); setTotal(d.total);
@@ -72,15 +148,152 @@ export default function AdminProductsPage() {
     finally { setLoading(false); }
   }
 
-  function handleSearch(e: React.FormEvent) { e.preventDefault(); load(1, search); }
+  function handleSearch(e: React.FormEvent) { e.preventDefault(); load(1, search, categoryFilter); }
 
+  function handleCategoryFilter(catId: string) {
+    setCategoryFilter(catId);
+    load(1, search, catId);
+  }
+
+  // ── Flatten categories ────────────────────────────────────────────────────
+  function flattenCategories(cats: Category[], depth = 0): Array<Category & { depth: number }> {
+    return cats.flatMap(c => [{ ...c, depth }, ...flattenCategories(c.children ?? [], depth + 1)]);
+  }
+  const flatCats = flattenCategories(categories);
+
+  function findCatById(id: number): Category | undefined {
+    return flatCats.find(c => c.id === id);
+  }
+
+  function selectedCatName(): string {
+    if (!categoryFilter) return 'All Categories';
+    return flatCats.find(c => String(c.id) === categoryFilter)?.name ?? 'Category';
+  }
+
+  // ── Export helpers ────────────────────────────────────────────────────────
+  async function fetchAllForExport(): Promise<Product[]> {
+    const params: any = { per_page: 2000, page: 1 };
+    if (categoryFilter) params.category_id = categoryFilter;
+    if (search)         params.search = search;
+    const { data } = await api.get('/admin/products', { params });
+    return (data.data ?? []) as Product[];
+  }
+
+  async function exportExcel() {
+    setShowExportMenu(false);
+    setExportLoading(true);
+    try {
+      const all = await fetchAllForExport();
+      const XLSX = (await import('xlsx')).default;
+      const rows = all.map(p => ({
+        'ID':             p.id,
+        'Name':           p.name,
+        'Secondary Name': p.name_secondary ?? '',
+        'Author':         p.author ?? '',
+        'Genre':          p.genre ?? '',
+        'Category':       p.category?.name ?? '',
+        'Price ($)':      parseFloat(p.price),
+        'Stock (Qty)':    p.stock,
+        'Active':         p.active ? 'Yes' : 'No',
+        'Featured':       p.featured ? 'Yes' : 'No',
+        'Description':    p.description ?? '',
+        'Slug':           p.slug,
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      // Column widths
+      ws['!cols'] = [
+        {wch:6},{wch:50},{wch:30},{wch:28},{wch:18},{wch:22},
+        {wch:10},{wch:10},{wch:8},{wch:10},{wch:60},{wch:40},
+      ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, selectedCatName().slice(0, 31));
+      const filename = `products_${selectedCatName().replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      XLSX.writeFile(wb, filename);
+      toast.success(`Excel exported — ${all.length} products`);
+    } catch (err) {
+      console.error(err);
+      toast.error('Excel export failed');
+    } finally { setExportLoading(false); }
+  }
+
+  async function exportPdf() {
+    setShowPdfModal(false);
+    setExportLoading(true);
+    try {
+      const all = await fetchAllForExport();
+      const { jsPDF } = await import('jspdf');
+      const autoTable = (await import('jspdf-autotable')).default;
+
+      const catLabel = categoryFilter ? selectedCatName() : 'All Products';
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      const pageW = doc.internal.pageSize.width;
+
+      // ── Logo ─────────────────────────────────────────────────────────────
+      const logoB64 = await logoToBase64('/logo.svg');
+      let headerY = 8;
+      if (logoB64) {
+        doc.addImage(logoB64, 'PNG', 14, 6, 42, 12);
+        headerY = 22;
+      } else {
+        doc.setFontSize(13);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(33, 56, 133);
+        doc.text('ATN BOOK & CRAFTS', 14, 13);
+        headerY = 20;
+      }
+
+      // ── Title ─────────────────────────────────────────────────────────────
+      doc.setFontSize(15);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(33, 56, 133);
+      doc.text(`List of ${catLabel}`, 14, headerY);
+
+      // ── Sub-header ────────────────────────────────────────────────────────
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(120, 120, 120);
+      const dateStr = new Date().toLocaleDateString('en-CA', { dateStyle: 'long' });
+      doc.text(`Exported ${dateStr}  ·  ${all.length} products`, 14, headerY + 6);
+
+      // ── Table ─────────────────────────────────────────────────────────────
+      const selectedDefs = PDF_COL_DEFS.filter(c => pdfCols.includes(c.key));
+      const head = [selectedDefs.map(c => c.label)];
+      const body = all.map(p => selectedDefs.map(col => getProductValue(p, col.key)));
+
+      autoTable(doc, {
+        head,
+        body,
+        startY: headerY + 10,
+        styles:          { fontSize: 8, cellPadding: 2.5, overflow: 'linebreak' },
+        headStyles:      { fillColor: [33, 56, 133], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 },
+        alternateRowStyles: { fillColor: [240, 245, 255] },
+        columnStyles:    pdfCols.includes('description') ? { [pdfCols.indexOf('description')]: { cellWidth: 60 } } : {},
+        margin:          { left: 14, right: 14 },
+        didDrawPage:     (d: any) => {
+          // Page footer
+          const pN = doc.getNumberOfPages();
+          doc.setFontSize(7);
+          doc.setTextColor(160, 160, 160);
+          doc.text(
+            `Page ${d.pageNumber} of ${pN}  ·  ATN Book & Crafts  ·  atnmegastore.ca`,
+            pageW / 2, doc.internal.pageSize.height - 5,
+            { align: 'center' }
+          );
+        },
+      });
+
+      const filename = `${catLabel.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
+      doc.save(filename);
+      toast.success(`PDF saved — ${all.length} products`);
+    } catch (err) {
+      console.error(err);
+      toast.error('PDF export failed');
+    } finally { setExportLoading(false); }
+  }
+
+  // ── CRUD ─────────────────────────────────────────────────────────────────
   function openCreate() {
-    setEditing(null);
-    setForm(EMPTY);
-    setImageMode(EMPTY.image ? 'url' : 'upload');
-    setSelectedTags([]);
-    setGalleryImages([]);
-    setShowModal(true);
+    setEditing(null); setForm(EMPTY); setImageMode('upload'); setSelectedTags([]); setGalleryImages([]); setShowModal(true);
   }
   function openEdit(p: Product) {
     setEditing(p);
@@ -89,12 +302,8 @@ export default function AdminProductsPage() {
     setSelectedTags((p.tags ?? []).map(t => t.slug));
     setGalleryImages([]);
     setShowModal(true);
-    // Load gallery images
     setGalleryLoading(true);
-    api.get(`/admin/products/${p.id}/images`)
-      .then(r => setGalleryImages(r.data))
-      .catch(() => {})
-      .finally(() => setGalleryLoading(false));
+    api.get(`/admin/products/${p.id}/images`).then(r => setGalleryImages(r.data)).catch(() => {}).finally(() => setGalleryLoading(false));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -102,7 +311,7 @@ export default function AdminProductsPage() {
     try {
       const payload = { ...form, price: parseFloat(form.price as string), stock: Number(form.stock), category_id: Number(form.category_id), tags: selectedTags };
       if (editing) { await api.put(`/admin/products/${editing.id}`, payload); toast.success('Product updated'); }
-      else { await api.post('/admin/products', payload); toast.success('Product created'); }
+      else         { await api.post('/admin/products', payload);               toast.success('Product created'); }
       setShowModal(false); load(page);
     } catch (err: any) {
       const errs = err?.response?.data?.errors;
@@ -116,71 +325,34 @@ export default function AdminProductsPage() {
     catch { toast.error('Delete failed'); }
   }
 
-  // ── Inline edit helpers ──────────────────────────────────────────────────────
-
-  // Flatten nested category tree into a single array for dropdowns
-  function flattenCategories(cats: Category[], depth = 0): Array<Category & { depth: number }> {
-    return cats.flatMap(c => [
-      { ...c, depth },
-      ...flattenCategories(c.children ?? [], depth + 1),
-    ]);
-  }
-  const flatCats = flattenCategories(categories);
-
-  function findCatById(id: number): Category | undefined {
-    return flatCats.find(c => c.id === id);
-  }
-
-  function startEdit(id: number, field: string, currentValue: any) {
-    setEditCell({ id, field });
-    setEditValue(String(currentValue ?? ''));
-  }
-
+  // ── Inline edit ─────────────────────────────────────────────────────────
+  function startEdit(id: number, field: string, currentValue: any) { setEditCell({ id, field }); setEditValue(String(currentValue ?? '')); }
   function cancelEdit() { setEditCell(null); setEditValue(''); }
 
   async function patchProduct(product: Product, changes: Record<string, any>) {
     const cellKey = Object.keys(changes)[0];
     setPatchingCell({ id: product.id, field: cellKey });
-    // Optimistic update
     setProducts(prev => prev.map(p => {
       if (p.id !== product.id) return p;
-      if (cellKey === 'category_id') {
-        const cat = findCatById(Number(changes.category_id));
-        return { ...p, category: cat ?? null };
-      }
+      if (cellKey === 'category_id') { const cat = findCatById(Number(changes.category_id)); return { ...p, category: cat ?? null }; }
       return { ...p, ...changes };
     }));
     try {
-      const payload = {
-        name: product.name,
-        category_id: product.category?.id,
-        price: parseFloat(product.price),
-        stock: product.stock,
-        active: product.active,
-        featured: product.featured,
-        name_secondary: product.name_secondary,
-        author: product.author,
-        genre: product.genre,
-        description: product.description,
-        image: product.image,
-        ...changes,
-      };
+      const payload = { name: product.name, category_id: product.category?.id, price: parseFloat(product.price), stock: product.stock, active: product.active, featured: product.featured, name_secondary: product.name_secondary, author: product.author, genre: product.genre, description: product.description, image: product.image, ...changes };
       const { data } = await api.put(`/admin/products/${product.id}`, payload);
       setProducts(prev => prev.map(p => p.id === product.id ? data : p));
       setSavedCell({ id: product.id, field: cellKey });
       setTimeout(() => setSavedCell(null), 1500);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Save failed');
-      load(page); // revert on error
-    } finally {
-      setPatchingCell(null);
-    }
+      load(page);
+    } finally { setPatchingCell(null); }
   }
 
   async function commitTextEdit(product: Product, field: string, rawValue: string) {
     cancelEdit();
     const value = field === 'price' ? parseFloat(rawValue) : field === 'stock' ? parseInt(rawValue, 10) : rawValue;
-    if (String(value) === String(field === 'price' ? parseFloat(product.price) : field === 'stock' ? product.stock : (product as any)[field])) return; // no change
+    if (String(value) === String(field === 'price' ? parseFloat(product.price) : field === 'stock' ? product.stock : (product as any)[field])) return;
     if ((field === 'price' || field === 'stock') && isNaN(value as number)) { toast.error('Invalid number'); return; }
     await patchProduct(product, { [field]: value });
   }
@@ -191,51 +363,40 @@ export default function AdminProductsPage() {
     await patchProduct(product, { category_id: Number(newCatId) });
   }
 
-  async function toggleStatus(product: Product) {
-    await patchProduct(product, { active: !product.active });
-  }
-
-  // ── Shared cell renderer ─────────────────────────────────────────────────────
+  async function toggleStatus(product: Product) { await patchProduct(product, { active: !product.active }); }
 
   const isEditing  = (id: number, field: string) => editCell?.id === id && editCell?.field === field;
   const isPatching = (id: number, field: string) => patchingCell?.id === id && patchingCell?.field === field;
   const isSaved    = (id: number, field: string) => savedCell?.id === id && savedCell?.field === field;
+  const cellBase   = 'cursor-pointer group-hover:border-b group-hover:border-dashed group-hover:border-gray-300 inline-block min-w-[2rem]';
 
-  const cellBase = 'cursor-pointer group-hover:border-b group-hover:border-dashed group-hover:border-gray-300 inline-block min-w-[2rem]';
-
+  // ── Image handlers ───────────────────────────────────────────────────────
   async function handleImageFile(file: File) {
     if (!file.type.startsWith('image/')) { toast.error('Please select an image file'); return; }
     setUploadingImage(true);
     try {
-      const fd = new FormData();
-      fd.append('image', file);
+      const fd = new FormData(); fd.append('image', file);
       const { data } = await api.post('/admin/upload/image', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      set('image', data.url);
-      toast.success('Image uploaded');
+      set('image', data.url); toast.success('Image uploaded');
     } catch { toast.error('Image upload failed'); }
     finally { setUploadingImage(false); }
   }
 
   async function handleGalleryFile(file: File) {
-    if (!editing) return;
-    if (!file.type.startsWith('image/')) { toast.error('Please select an image file'); return; }
+    if (!editing || !file.type.startsWith('image/')) return;
     setUploadingGallery(true);
     try {
-      const fd = new FormData();
-      fd.append('image', file);
+      const fd = new FormData(); fd.append('image', file);
       const { data } = await api.post(`/admin/products/${editing.id}/images`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      setGalleryImages(prev => [...prev, data]);
-      toast.success('Image added to gallery');
+      setGalleryImages(prev => [...prev, data]); toast.success('Image added to gallery');
     } catch { toast.error('Gallery upload failed'); }
     finally { setUploadingGallery(false); }
   }
 
   async function deleteGalleryImage(imgId: number) {
     if (!editing) return;
-    try {
-      await api.delete(`/admin/products/${editing.id}/images/${imgId}`);
-      setGalleryImages(prev => prev.filter(i => i.id !== imgId));
-    } catch { toast.error('Delete failed'); }
+    try { await api.delete(`/admin/products/${editing.id}/images/${imgId}`); setGalleryImages(prev => prev.filter(i => i.id !== imgId)); }
+    catch { toast.error('Delete failed'); }
   }
 
   const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
@@ -243,22 +404,104 @@ export default function AdminProductsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+      {/* ── Page header ─────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-[#1a1a1a]" style={{ fontFamily: 'var(--font-playfair, Georgia, serif)' }}>Products</h1>
-          <p className="text-[#6b6b6b] mt-1">{total} total products · <span className="text-xs text-gray-400">click Category, Price, Stock or Status to edit inline</span></p>
+          <p className="text-[#6b6b6b] mt-1">{total} total · <span className="text-xs text-gray-400">click Category, Price or Stock to edit inline</span></p>
         </div>
         <button onClick={openCreate} className="flex items-center gap-2 bg-[#213885] hover:bg-[#081849] text-white px-4 py-2 text-sm font-medium transition-colors">
           <Plus className="w-4 h-4" /> Add Product
         </button>
       </div>
 
-      <form onSubmit={handleSearch} className="flex gap-2 mb-4">
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or author…" className="flex-1 border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#213885]" />
-        <button type="submit" className="bg-gray-100 hover:bg-gray-200 px-4 py-2 text-sm flex items-center gap-1"><Search className="w-4 h-4" /> Search</button>
-        {search && <button type="button" onClick={() => { setSearch(''); load(1, ''); }} className="text-sm text-gray-500 hover:text-gray-700 px-2">Clear</button>}
-      </form>
+      {/* ── Toolbar: search + category filter + export ───────────────────── */}
+      <div className="flex flex-wrap gap-2 mb-4 items-end">
 
+        {/* Search */}
+        <form onSubmit={handleSearch} className="flex gap-2 flex-1 min-w-48">
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by name or author…"
+            className="flex-1 border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#213885]"
+          />
+          <button type="submit" className="bg-gray-100 hover:bg-gray-200 px-4 py-2 text-sm flex items-center gap-1">
+            <Search className="w-4 h-4" /> Search
+          </button>
+          {search && (
+            <button type="button" onClick={() => { setSearch(''); load(1, '', categoryFilter); }} className="text-sm text-gray-500 hover:text-gray-700 px-2">Clear</button>
+          )}
+        </form>
+
+        {/* Category filter */}
+        <div className="flex items-center gap-1">
+          <Filter className="w-3.5 h-3.5 text-gray-400" />
+          <select
+            value={categoryFilter}
+            onChange={e => handleCategoryFilter(e.target.value)}
+            className="border border-gray-300 px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#213885] min-w-36 bg-white"
+          >
+            <option value="">All Categories</option>
+            {flatCats.map(c => (
+              <option key={c.id} value={String(c.id)}>
+                {'  '.repeat(c.depth)}{c.name}
+              </option>
+            ))}
+          </select>
+          {categoryFilter && (
+            <button onClick={() => handleCategoryFilter('')} className="text-gray-400 hover:text-gray-600" title="Clear filter">
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Export dropdown */}
+        <div className="relative" ref={exportMenuRef}>
+          <button
+            onClick={() => setShowExportMenu(v => !v)}
+            disabled={exportLoading}
+            className="flex items-center gap-1.5 border border-gray-300 bg-white hover:bg-gray-50 px-3 py-2 text-sm text-gray-700 transition-colors disabled:opacity-50"
+          >
+            {exportLoading
+              ? <span className="w-4 h-4 border-2 border-gray-300 border-t-[#213885] rounded-full animate-spin" />
+              : <Download className="w-4 h-4" />}
+            Export
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
+          </button>
+
+          {showExportMenu && (
+            <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 shadow-lg z-20 min-w-48 py-1">
+              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-gray-400 border-b border-gray-100">
+                {categoryFilter ? `Category: ${selectedCatName()}` : 'All Products'}
+              </div>
+              <button
+                onClick={exportExcel}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                <div className="text-left">
+                  <p className="font-medium">Export as Excel</p>
+                  <p className="text-xs text-gray-400">All fields · .xlsx</p>
+                </div>
+              </button>
+              <button
+                onClick={() => { setShowExportMenu(false); setShowPdfModal(true); }}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <FileText className="w-4 h-4 text-red-500" />
+                <div className="text-left">
+                  <p className="font-medium">Export as PDF…</p>
+                  <p className="text-xs text-gray-400">Choose columns · ATN logo</p>
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Product table ────────────────────────────────────────────────── */}
       {loading ? <Spinner className="py-16" label="Loading products…" /> : (
         <>
           <div className="bg-white border border-[#cccacc]">
@@ -274,7 +517,9 @@ export default function AdminProductsPage() {
                 {products.map(p => (
                   <tr key={p.id} className="hover:bg-gray-50/60 group">
                     <td className="py-2 px-3 border-b border-gray-50">
-                      {p.image ? <img src={p.image} alt="" className="w-10 h-10 object-cover" onError={e => (e.currentTarget.style.display = 'none')} /> : <div className="w-10 h-10 bg-gray-100" />}
+                      {p.image
+                        ? <img src={p.image} alt="" className="w-10 h-10 object-cover" onError={e => (e.currentTarget.style.display = 'none')} />
+                        : <div className="w-10 h-10 bg-gray-100" />}
                     </td>
                     <td className="py-2 px-3 border-b border-gray-50">
                       <p className="font-medium text-[#1a1a1a] leading-tight">{p.name}</p>
@@ -283,75 +528,59 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="py-2 px-3 border-b border-gray-50 text-[#6b6b6b]">{p.author ?? '—'}</td>
 
-                    {/* ── Category inline edit ── */}
+                    {/* Category inline edit */}
                     <td className="py-2 px-3 border-b border-gray-50" onClick={() => !isEditing(p.id, 'category') && startEdit(p.id, 'category', p.category?.id ?? '')}>
                       {isEditing(p.id, 'category') ? (
-                        <select
-                          autoFocus
-                          value={editValue}
+                        <select autoFocus value={editValue}
                           onChange={e => { commitCategoryEdit(p, e.target.value); }}
                           onBlur={() => { commitCategoryEdit(p, editValue); }}
                           onKeyDown={e => e.key === 'Escape' && cancelEdit()}
-                          className="bg-transparent border-0 border-b border-[#213885] outline-none text-sm py-0.5 text-[#1a1a1a] cursor-pointer"
-                        >
+                          className="bg-transparent border-0 border-b border-[#213885] outline-none text-sm py-0.5 text-[#1a1a1a] cursor-pointer">
                           <option value="">— none —</option>
-                          {flatCats.map(c => (
-                            <option key={c.id} value={c.id}>
-                              {'  '.repeat(c.depth)}{c.name}
-                            </option>
-                          ))}
+                          {flatCats.map(c => <option key={c.id} value={c.id}>{'  '.repeat(c.depth)}{c.name}</option>)}
                         </select>
                       ) : (
                         <span className={`${cellBase} ${isPatching(p.id, 'category') ? 'opacity-40' : 'text-[#6b6b6b]'}`}>
-                          {isPatching(p.id, 'category') ? '…' : isSaved(p.id, 'category') ? <span className="text-green-600 font-semibold text-xs">✓ Saved</span> : (p.category?.name ?? '—')}
+                          {isPatching(p.id, 'category') ? '…' : isSaved(p.id, 'category') ? <span className="text-green-600 font-semibold text-xs">✓</span> : (p.category?.name ?? '—')}
                         </span>
                       )}
                     </td>
 
-                    {/* ── Price inline edit ── */}
+                    {/* Price inline edit */}
                     <td className="py-2 px-3 border-b border-gray-50" onClick={() => !isEditing(p.id, 'price') && startEdit(p.id, 'price', parseFloat(p.price).toFixed(2))}>
                       {isEditing(p.id, 'price') ? (
-                        <input
-                          autoFocus type="number" step="0.01" min="0"
-                          value={editValue}
+                        <input autoFocus type="number" step="0.01" min="0" value={editValue}
                           onChange={e => setEditValue(e.target.value)}
                           onBlur={() => commitTextEdit(p, 'price', editValue)}
                           onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') cancelEdit(); }}
-                          className="bg-transparent border-0 border-b border-[#213885] outline-none w-20 text-sm py-0.5 font-medium"
-                        />
+                          className="bg-transparent border-0 border-b border-[#213885] outline-none w-20 text-sm py-0.5 font-medium" />
                       ) : (
                         <span className={`${cellBase} font-medium ${isPatching(p.id, 'price') ? 'opacity-40' : ''}`}>
-                          {isPatching(p.id, 'price') ? '…' : isSaved(p.id, 'price') ? <span className="text-green-600 font-semibold text-xs">✓ Saved</span> : `$${parseFloat(p.price).toFixed(2)}`}
+                          {isPatching(p.id, 'price') ? '…' : isSaved(p.id, 'price') ? <span className="text-green-600 font-semibold text-xs">✓</span> : `$${parseFloat(p.price).toFixed(2)}`}
                         </span>
                       )}
                     </td>
 
-                    {/* ── Stock inline edit ── */}
+                    {/* Stock inline edit */}
                     <td className="py-2 px-3 border-b border-gray-50" onClick={() => !isEditing(p.id, 'stock') && startEdit(p.id, 'stock', p.stock)}>
                       {isEditing(p.id, 'stock') ? (
-                        <input
-                          autoFocus type="number" min="0"
-                          value={editValue}
+                        <input autoFocus type="number" min="0" value={editValue}
                           onChange={e => setEditValue(e.target.value)}
                           onBlur={() => commitTextEdit(p, 'stock', editValue)}
                           onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') cancelEdit(); }}
-                          className="bg-transparent border-0 border-b border-[#213885] outline-none w-16 text-sm py-0.5"
-                        />
+                          className="bg-transparent border-0 border-b border-[#213885] outline-none w-16 text-sm py-0.5" />
                       ) : (
-                        <span className={`${cellBase} ${isPatching(p.id, 'stock') ? 'opacity-40' : p.stock === 0 ? 'text-red-600' : p.stock < 5 ? 'text-orange-600' : 'text-gray-700'}`}>
-                          {isPatching(p.id, 'stock') ? '…' : isSaved(p.id, 'stock') ? <span className="text-green-600 font-semibold text-xs">✓ Saved</span> : p.stock}
+                        <span className={`${cellBase} ${isPatching(p.id, 'stock') ? 'opacity-40' : p.stock === 0 ? 'text-red-600 font-semibold' : p.stock < 5 ? 'text-orange-600' : 'text-gray-700'}`}>
+                          {isPatching(p.id, 'stock') ? '…' : isSaved(p.id, 'stock') ? <span className="text-green-600 font-semibold text-xs">✓</span> : p.stock}
                         </span>
                       )}
                     </td>
 
-                    {/* ── Status toggle ── */}
+                    {/* Status toggle */}
                     <td className="py-2 px-3 border-b border-gray-50">
-                      <button
-                        onClick={() => toggleStatus(p)}
-                        disabled={isPatching(p.id, 'active')}
-                        className={`text-xs px-2 py-0.5 transition-colors disabled:opacity-40 ${p.active ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
-                      >
-                        {isPatching(p.id, 'active') ? '…' : isSaved(p.id, 'active') ? '✓ Saved' : p.active ? 'Active' : 'Hidden'}
+                      <button onClick={() => toggleStatus(p)} disabled={isPatching(p.id, 'active')}
+                        className={`text-xs px-2 py-0.5 transition-colors disabled:opacity-40 ${p.active ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+                        {isPatching(p.id, 'active') ? '…' : isSaved(p.id, 'active') ? '✓' : p.active ? 'Active' : 'Hidden'}
                       </button>
                     </td>
 
@@ -366,6 +595,7 @@ export default function AdminProductsPage() {
               </tbody>
             </table>
           </div>
+
           {lastPage > 1 && (
             <div className="flex gap-2 mt-4 items-center text-sm">
               <button disabled={page === 1} onClick={() => load(page - 1)} className="px-3 py-1 border border-gray-300 disabled:opacity-40 hover:bg-gray-50">Prev</button>
@@ -376,6 +606,89 @@ export default function AdminProductsPage() {
         </>
       )}
 
+      {/* ── PDF column picker modal ──────────────────────────────────────── */}
+      {showPdfModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md shadow-xl">
+            <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-[#1a1a1a]">Export as PDF</h2>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {categoryFilter ? `Category: ${selectedCatName()}` : 'All products'} · ATN logo included
+                </p>
+              </div>
+              <button onClick={() => setShowPdfModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="px-5 py-4">
+              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+                Choose columns to include in PDF
+              </p>
+              <div className="space-y-2">
+                {PDF_COL_DEFS.map(col => (
+                  <label key={col.key} className="flex items-center gap-3 cursor-pointer group">
+                    <div
+                      onClick={() => setPdfCols(prev =>
+                        prev.includes(col.key)
+                          ? prev.filter(k => k !== col.key)
+                          : [...prev, col.key]
+                      )}
+                      className={`w-4 h-4 border-2 rounded-sm flex items-center justify-center shrink-0 transition-colors
+                        ${pdfCols.includes(col.key) ? 'bg-[#213885] border-[#213885]' : 'border-gray-300 group-hover:border-[#213885]'}`}
+                    >
+                      {pdfCols.includes(col.key) && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
+                    </div>
+                    <span
+                      className={`text-sm ${pdfCols.includes(col.key) ? 'text-[#1a1a1a] font-medium' : 'text-gray-500'}`}
+                      onClick={() => setPdfCols(prev =>
+                        prev.includes(col.key)
+                          ? prev.filter(k => k !== col.key)
+                          : [...prev, col.key]
+                      )}
+                    >
+                      {col.label}
+                    </span>
+                    {col.defaultOn && <span className="text-[10px] text-gray-400 ml-auto">default</span>}
+                  </label>
+                ))}
+              </div>
+
+              <div className="flex gap-2 mt-2 pt-2 border-t border-gray-100">
+                <button
+                  onClick={() => setPdfCols(PDF_COL_DEFS.filter(c => c.defaultOn).map(c => c.key))}
+                  className="text-xs text-gray-400 hover:text-gray-600"
+                >
+                  Reset defaults
+                </button>
+                <button
+                  onClick={() => setPdfCols(PDF_COL_DEFS.map(c => c.key))}
+                  className="text-xs text-gray-400 hover:text-gray-600 ml-2"
+                >
+                  Select all
+                </button>
+              </div>
+            </div>
+
+            <div className="px-5 py-3 border-t border-gray-100 bg-gray-50 flex gap-3 items-center justify-end">
+              <span className="text-xs text-gray-400">{pdfCols.length} column{pdfCols.length !== 1 ? 's' : ''} selected</span>
+              <button onClick={() => setShowPdfModal(false)} className="border border-gray-300 px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-100">
+                Cancel
+              </button>
+              <button
+                onClick={exportPdf}
+                disabled={pdfCols.length === 0}
+                className="flex items-center gap-2 bg-[#213885] hover:bg-[#081849] disabled:opacity-50 text-white px-4 py-1.5 text-sm font-medium transition-colors"
+              >
+                <FileText className="w-4 h-4" /> Download PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Add / Edit product modal ─────────────────────────────────────── */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -414,9 +727,7 @@ export default function AdminProductsPage() {
                         (root.children ?? []).map(lang => (
                           (lang.children ?? []).length > 0 ? (
                             <optgroup key={lang.id} label={lang.name}>
-                              {(lang.children ?? []).map(genre => (
-                                <option key={genre.id} value={genre.id}>{genre.name}</option>
-                              ))}
+                              {(lang.children ?? []).map(genre => <option key={genre.id} value={genre.id}>{genre.name}</option>)}
                             </optgroup>
                           ) : (
                             <optgroup key={lang.id} label={root.name}>
@@ -443,45 +754,26 @@ export default function AdminProductsPage() {
                 <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
                 <textarea rows={3} value={form.description} onChange={e => set('description', e.target.value)} className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#213885]" />
               </div>
-              {/* ── Image picker ── */}
+
+              {/* Image picker */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="block text-xs font-medium text-gray-600">Product Image</label>
                   <div className="flex gap-2">
-                    <button type="button" onClick={() => setImageMode('upload')}
-                      className={`flex items-center gap-1 text-xs px-2 py-0.5 transition-colors ${imageMode === 'upload' ? 'bg-[#213885] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-                      <Upload className="w-3 h-3" /> Upload
-                    </button>
-                    <button type="button" onClick={() => setImageMode('url')}
-                      className={`flex items-center gap-1 text-xs px-2 py-0.5 transition-colors ${imageMode === 'url' ? 'bg-[#213885] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-                      <Link className="w-3 h-3" /> URL
-                    </button>
+                    <button type="button" onClick={() => setImageMode('upload')} className={`flex items-center gap-1 text-xs px-2 py-0.5 transition-colors ${imageMode === 'upload' ? 'bg-[#213885] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}><Upload className="w-3 h-3" /> Upload</button>
+                    <button type="button" onClick={() => setImageMode('url')} className={`flex items-center gap-1 text-xs px-2 py-0.5 transition-colors ${imageMode === 'url' ? 'bg-[#213885] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}><Link className="w-3 h-3" /> URL</button>
                   </div>
                 </div>
-
                 <div className="flex gap-3 items-start">
-                  {/* Preview */}
                   <div className="shrink-0 w-20 h-20 border border-[#cccacc] bg-gray-50 flex items-center justify-center overflow-hidden relative">
-                    {form.image
-                      ? <img src={form.image} alt="" className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = 'none')} />
-                      : <Upload className="w-6 h-6 text-gray-300" />}
-                    {form.image && (
-                      <button type="button" onClick={() => set('image', '')}
-                        className="absolute top-0.5 right-0.5 bg-white border border-gray-200 text-gray-500 hover:text-red-600 rounded-full p-0.5">
-                        <X className="w-2.5 h-2.5" />
-                      </button>
-                    )}
+                    {form.image ? <img src={form.image} alt="" className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = 'none')} /> : <Upload className="w-6 h-6 text-gray-300" />}
+                    {form.image && <button type="button" onClick={() => set('image', '')} className="absolute top-0.5 right-0.5 bg-white border border-gray-200 text-gray-500 hover:text-red-600 rounded-full p-0.5"><X className="w-2.5 h-2.5" /></button>}
                   </div>
-
                   <div className="flex-1">
                     {imageMode === 'upload' ? (
                       <>
-                        <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
-                          onChange={e => { const f = e.target.files?.[0]; if (f) handleImageFile(f); e.target.value = ''; }} />
-                        <button type="button" disabled={uploadingImage}
-                          onClick={() => fileInputRef.current?.click()}
-                          onDragOver={e => e.preventDefault()}
-                          onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleImageFile(f); }}
+                        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleImageFile(f); e.target.value = ''; }} />
+                        <button type="button" disabled={uploadingImage} onClick={() => fileInputRef.current?.click()} onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleImageFile(f); }}
                           className="w-full border-2 border-dashed border-[#cccacc] hover:border-[#213885] py-4 flex flex-col items-center gap-1 text-xs text-[#6b6b6b] hover:text-[#213885] transition-colors disabled:opacity-50 cursor-pointer">
                           <Upload className={`w-5 h-5 ${uploadingImage ? 'animate-bounce' : ''}`} />
                           {uploadingImage ? 'Uploading…' : 'Click or drag & drop'}
@@ -489,14 +781,13 @@ export default function AdminProductsPage() {
                         </button>
                       </>
                     ) : (
-                      <input value={form.image} onChange={e => set('image', e.target.value)}
-                        placeholder="https://example.com/image.jpg"
-                        className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#213885]" />
+                      <input value={form.image} onChange={e => set('image', e.target.value)} placeholder="https://example.com/image.jpg" className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#213885]" />
                     )}
                   </div>
                 </div>
               </div>
-              {/* ── Gallery Images (edit mode only) ── */}
+
+              {/* Gallery */}
               {editing && (
                 <div>
                   <div className="flex items-center gap-2 mb-2">
@@ -504,60 +795,29 @@ export default function AdminProductsPage() {
                     <label className="block text-xs font-medium text-gray-600">Image Gallery</label>
                     <span className="text-xs text-gray-400">({galleryImages.length} image{galleryImages.length !== 1 ? 's' : ''})</span>
                   </div>
-
-                  {galleryLoading ? (
-                    <Spinner size="sm" className="py-2" />
-                  ) : (
+                  {galleryLoading ? <Spinner size="sm" className="py-2" /> : (
                     <div className="flex flex-wrap gap-2">
                       {galleryImages.map((img, idx) => (
                         <div key={img.id} className="relative group w-20 h-20 border border-[#cccacc] bg-gray-50 overflow-hidden shrink-0">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={img.url} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover" onError={e => (e.currentTarget.style.opacity = '0.3')} />
-                          <button
-                            type="button"
-                            onClick={() => deleteGalleryImage(img.id)}
-                            className="absolute top-0.5 right-0.5 bg-white/90 border border-gray-200 text-gray-500 hover:text-red-600 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X className="w-2.5 h-2.5" />
-                          </button>
-                          {idx === 0 && (
-                            <span className="absolute bottom-0 left-0 right-0 bg-[#213885]/80 text-white text-[9px] text-center py-0.5 font-semibold tracking-wider">
-                              FIRST
-                            </span>
-                          )}
+                          <button type="button" onClick={() => deleteGalleryImage(img.id)} className="absolute top-0.5 right-0.5 bg-white/90 border border-gray-200 text-gray-500 hover:text-red-600 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-2.5 h-2.5" /></button>
+                          {idx === 0 && <span className="absolute bottom-0 left-0 right-0 bg-[#213885]/80 text-white text-[9px] text-center py-0.5 font-semibold tracking-wider">FIRST</span>}
                         </div>
                       ))}
-
-                      {/* Add image button */}
-                      <button
-                        type="button"
-                        disabled={uploadingGallery}
-                        onClick={() => galleryInputRef.current?.click()}
-                        onDragOver={e => e.preventDefault()}
-                        onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleGalleryFile(f); }}
-                        className="w-20 h-20 border-2 border-dashed border-[#cccacc] hover:border-[#213885] flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-[#213885] transition-colors disabled:opacity-50 cursor-pointer shrink-0"
-                      >
-                        {uploadingGallery
-                          ? <Upload className="w-4 h-4 animate-bounce" />
-                          : <><Plus className="w-4 h-4" /><span className="text-[10px]">Add</span></>}
+                      <button type="button" disabled={uploadingGallery} onClick={() => galleryInputRef.current?.click()} onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleGalleryFile(f); }}
+                        className="w-20 h-20 border-2 border-dashed border-[#cccacc] hover:border-[#213885] flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-[#213885] transition-colors disabled:opacity-50 cursor-pointer shrink-0">
+                        {uploadingGallery ? <Upload className="w-4 h-4 animate-bounce" /> : <><Plus className="w-4 h-4" /><span className="text-[10px]">Add</span></>}
                       </button>
-                      <input ref={galleryInputRef} type="file" accept="image/*" className="hidden"
-                        onChange={e => { const f = e.target.files?.[0]; if (f) handleGalleryFile(f); e.target.value = ''; }} />
+                      <input ref={galleryInputRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleGalleryFile(f); e.target.value = ''; }} />
                     </div>
                   )}
-                  <p className="mt-1.5 text-[11px] text-gray-400">
-                    Shown as a thumbnail strip on the product page. The first image is displayed on hover in listings.
-                  </p>
                 </div>
               )}
 
               <div className="flex gap-6">
-                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                  <input type="checkbox" checked={form.featured} onChange={e => set('featured', e.target.checked)} className="w-4 h-4 accent-[#213885]" /> Featured
-                </label>
-                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                  <input type="checkbox" checked={form.active} onChange={e => set('active', e.target.checked)} className="w-4 h-4 accent-[#213885]" /> Active
-                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer"><input type="checkbox" checked={form.featured} onChange={e => set('featured', e.target.checked)} className="w-4 h-4 accent-[#213885]" /> Featured</label>
+                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer"><input type="checkbox" checked={form.active} onChange={e => set('active', e.target.checked)} className="w-4 h-4 accent-[#213885]" /> Active</label>
               </div>
               <div className="flex gap-3 pt-2 border-t border-gray-100">
                 <button type="submit" disabled={saving} className="bg-[#213885] hover:bg-[#081849] disabled:opacity-50 text-white px-6 py-2 text-sm font-medium transition-colors">
