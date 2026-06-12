@@ -1,29 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 195 143" role="img" aria-label="ATN Book &amp; Crafts">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 130" role="img" aria-label="ATN Book &amp; Crafts">
 
   <defs>
-    <!-- Subtle drop shadow to give the bookmark a lifted feel -->
-    <filter id="bm-shadow" x="-6%" y="-4%" width="114%" height="114%">
+    <filter id="bm-shadow" x="-6%" y="-6%" width="116%" height="116%">
       <feDropShadow dx="2" dy="3" stdDeviation="3" flood-color="#00000028"/>
     </filter>
   </defs>
 
   <!--
-    Bookmark shape:
-      flat top + straight sides + V-notch pointing upward from bottom center
-      Rectangle corners at y=143; V-point rises to y=116 at x=97.5
-      This gives a 27 px deep notch — classic ribbon-bookmark silhouette
+    Horizontal bookmark — V-notch cut into the RIGHT side:
+      top-left (0,0) → top-right (220,0)
+      → V-point (195, 65)          ← notch goes 25 px leftward at mid-height
+      → bottom-right (220,130)
+      → bottom-left (0,130) → close
+
+      Logo content right edge lands at x≈185, giving 10 px clearance to the V-point.
   -->
-  <path d="M 0,0 L 195,0 L 195,143 L 97.5,116 L 0,143 Z"
+  <path d="M 0,0 L 220,0 L 195,65 L 220,130 L 0,130 Z"
         fill="#C8D5ED" filter="url(#bm-shadow)"/>
 
   <!--
-    Logo elements — translated (11, 10) to centre inside bookmark with padding:
-      T-circle top  : 34-32+10 = 12 px from top edge
-      badge bottom  : 72+28+10 = 110 px   (6 px above V-point at y=116)
-      left edge     : 27-24+11 = 14 px from left
-      right edge    : 147+24+11 = 182 px  (13 px from right edge 195)
+    Logo elements translated (14, 16) to centre inside the bookmark:
+      T-circle top   : 34-32+16 = 18 px from top
+      badge bottom   : 72+28+16 = 116 px  (14 px from bottom)
+      left edge      : 27-24+14 = 17 px from left
+      right edge     : 147+24+14 = 185 px (10 px left of V-point at 195)
   -->
-  <g transform="translate(11,10)">
+  <g transform="translate(14,16)">
 
     <!-- Circles – 4 px gap between each pair -->
     <circle cx="27"  cy="40" r="24" fill="#006838"/>
@@ -49,7 +51,7 @@
           font-size="38" font-weight="900"
           font-family="'Arial Black','Impact',Arial,sans-serif">N</text>
 
-    <!-- "Book & Crafts" — no background, larger text -->
+    <!-- "Book & Crafts" — no background, bold text -->
     <text x="86.5" y="86"
           text-anchor="middle" dominant-baseline="central"
           fill="#213885"
