@@ -1,41 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 165 83" role="img" aria-label="ATN Book &amp; Crafts">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 175 94" role="img" aria-label="ATN Book &amp; Crafts">
 
-  <!-- Left circle – A (smaller) -->
-  <circle cx="28" cy="40" r="26" fill="#006838"/>
+  <!--
+    Circle layout (gaps between circles, not overlapping):
+      Left  A : cx=27,  r=24  → right edge  x=51
+      gap 6 px → Middle T left edge x=57
+      Middle T : cx=89,  r=32  → right edge  x=121
+      gap 6 px → Right N left edge x=127
+      Right  N : cx=151, r=24  → right edge  x=175
+  -->
 
-  <!-- Middle circle – T (larger, raised) -->
-  <circle cx="82" cy="34" r="32" fill="#006838"/>
+  <!-- Left circle – A -->
+  <circle cx="27"  cy="38" r="24" fill="#006838"/>
 
-  <!-- Right circle – N (smaller) -->
-  <circle cx="136" cy="40" r="26" fill="#006838"/>
+  <!-- Middle circle – T  (larger, raised) -->
+  <circle cx="89"  cy="32" r="32" fill="#006838"/>
 
-  <!-- Red letters, vertically and horizontally centred in each circle -->
-  <text x="28" y="40"
+  <!-- Right circle – N -->
+  <circle cx="151" cy="38" r="24" fill="#006838"/>
+
+  <!--
+    Letters: very large (fills most of the circle), red fill,
+    yellow outer stroke (paint-order keeps red on top)
+  -->
+  <text x="27" y="38"
         text-anchor="middle" dominant-baseline="central"
-        fill="#ED1C24"
-        font-size="30" font-weight="900"
+        fill="#ED1C24" stroke="#FFD700" stroke-width="3" paint-order="stroke fill"
+        font-size="42" font-weight="900"
         font-family="'Arial Black','Impact',Arial,sans-serif">A</text>
 
-  <text x="82" y="34"
+  <text x="89" y="32"
         text-anchor="middle" dominant-baseline="central"
-        fill="#ED1C24"
-        font-size="40" font-weight="900"
+        fill="#ED1C24" stroke="#FFD700" stroke-width="3" paint-order="stroke fill"
+        font-size="56" font-weight="900"
         font-family="'Arial Black','Impact',Arial,sans-serif">T</text>
 
-  <text x="136" y="40"
+  <text x="151" y="38"
         text-anchor="middle" dominant-baseline="central"
-        fill="#ED1C24"
-        font-size="30" font-weight="900"
+        fill="#ED1C24" stroke="#FFD700" stroke-width="3" paint-order="stroke fill"
+        font-size="42" font-weight="900"
         font-family="'Arial Black','Impact',Arial,sans-serif">N</text>
 
-  <!-- "Book & Crafts" rounded-rectangle badge -->
-  <rect x="4" y="68" width="157" height="14" rx="7"
-        fill="white" stroke="#213885" stroke-width="1.5"/>
+  <!--
+    "Book & Crafts" badge:
+      circles bottom = max(38+24, 32+32) = 64
+      8 px gap → rect starts at y=72
+      taller rect: height=20, rx=10
+      yellow background, blue border & text
+  -->
+  <rect x="4" y="72" width="167" height="20" rx="10"
+        fill="#FFD700" stroke="#213885" stroke-width="1.5"/>
 
-  <text x="82" y="75"
+  <text x="87.5" y="82"
         text-anchor="middle" dominant-baseline="central"
         fill="#213885"
-        font-size="9" font-weight="bold" letter-spacing="1"
-        font-family="Arial,'Helvetica Neue',sans-serif">Book &amp; Crafts</text>
+        font-size="12" font-weight="900" letter-spacing="1.2"
+        font-family="'Arial Black',Arial,'Helvetica Neue',sans-serif">Book &amp; Crafts</text>
 
 </svg>
