@@ -4,15 +4,19 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { useSiteSettingsStore } from '@/store/siteSettingsStore';
 
 const INTERVAL   = 5000;
 const SESSION_KEY = 'atn_ann_dismissed';
 
 export default function AnnouncementBar() {
   const t = useTranslations('announcement');
+  const { settings, fetch } = useSiteSettingsStore();
+  useEffect(() => { fetch(); }, [fetch]);
+  const amount = Math.round(settings.free_shipping_threshold || 49);
 
   const MESSAGES = [
-    { text: t('free_shipping'),    link: '/products' as string | null },
+    { text: t('free_shipping', { amount }),    link: '/products' as string | null },
     { text: t('books_collection'), link: '/products?sort=created_at&dir=desc' as string | null },
     { text: t('gift_cards'),       link: '/gift-cards' as string | null },
     { text: t('local_pickup'),     link: null },

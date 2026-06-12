@@ -63,14 +63,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   const t = await getTranslations('home');
 
-  const [featured, categories, slides, eventsData, postsData, newestData] = await Promise.all([
+  const [featured, categories, slides, eventsData, postsData, newestData, shippingData] = await Promise.all([
     getFeaturedProducts(),
     getCategories(),
     getSlides(),
     getEvents(),
     getLatestPosts(),
     getNewestProduct(),
+    serverFetch('/shipping/settings', { free_shipping_threshold: 49 }),
   ]);
+  const freeShippingAmount = Math.round(Number(shippingData.free_shipping_threshold) || 49);
 
   const upcomingEvents: any[] = (eventsData.upcoming ?? []).slice(0, 3);
   const latestPosts: any[]    = postsData.data ?? [];
@@ -93,7 +95,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <section className="bg-white border-y border-[#cccacc]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 grid grid-cols-3 gap-4 text-center">
           {[
-            { icon: Truck,     text: t('trust_shipping') },
+            { icon: Truck,     text: t('trust_shipping', { amount: freeShippingAmount }) },
             { icon: Shield,    text: t('trust_secure') },
             { icon: RefreshCw, text: t('trust_returns') },
           ].map(({ icon: Icon, text }) => (

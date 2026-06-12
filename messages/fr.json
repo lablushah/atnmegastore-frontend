@@ -38,13 +38,13 @@
     "admin_panel": "Panneau d'administration"
   },
   "announcement": {
-    "free_shipping": "Livraison gratuite pour toute commande de plus de 59 $ — partout au Canada",
+    "free_shipping": "Livraison gratuite pour toute commande de plus de {amount} $ — partout au Canada",
     "books_collection": "Plus de 1 400 livres bengalis et islamiques — nouveautés chaque semaine",
     "gift_cards": "Cartes-cadeaux à partir de 25 $ — Offrez le cadeau de mille histoires",
     "local_pickup": "Ramassage en magasin disponible à notre boutique Bangla Town de Toronto — prêt en 24 heures"
   },
   "home": {
-    "trust_shipping": "Livraison gratuite dès 49 $",
+    "trust_shipping": "Livraison gratuite dès {amount} $",
     "trust_secure": "Paiement sécurisé",
     "trust_returns": "Retours faciles",
     "shop_by_category": "Acheter par catégorie",
@@ -151,7 +151,7 @@
     "pages": "Pages",
     "language": "Langue",
     "category": "Catégorie",
-    "free_shipping_over": "Livraison gratuite pour les commandes de plus de 59 $",
+    "free_shipping_over": "Livraison gratuite pour les commandes de plus de {amount} $",
     "estimated_delivery": "Délai de livraison estimé : 3 à 7 jours ouvrables",
     "pickup_available": "Retrait en magasin disponible à Toronto"
   },

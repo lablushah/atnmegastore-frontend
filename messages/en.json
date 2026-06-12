@@ -38,13 +38,13 @@
     "admin_panel": "Admin Panel"
   },
   "announcement": {
-    "free_shipping": "Free shipping on all orders over $59 — Canada-wide",
+    "free_shipping": "Free shipping on orders over ${amount} — Canada-wide",
     "books_collection": "Over 1,400 Bengali & Islamic books — new arrivals added every week",
     "gift_cards": "Gift cards from $25 — Give the gift of a thousand stories",
     "local_pickup": "Local pickup available at our Toronto Bangla Town store — ready in 24 hours"
   },
   "home": {
-    "trust_shipping": "Free shipping over $49",
+    "trust_shipping": "Free shipping over ${amount}",
     "trust_secure": "Secure checkout",
     "trust_returns": "Easy returns",
     "shop_by_category": "Shop by Category",
@@ -151,7 +151,7 @@
     "pages": "Pages",
     "language": "Language",
     "category": "Category",
-    "free_shipping_over": "Free shipping on orders over $59",
+    "free_shipping_over": "Free shipping on orders over ${amount}",
     "estimated_delivery": "Estimated delivery: 3–7 business days",
     "pickup_available": "In-store pickup available in Toronto"
   },

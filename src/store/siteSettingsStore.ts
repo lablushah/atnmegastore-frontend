@@ -3,25 +3,27 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import api from '@/lib/api';
 
 export interface SiteSettings {
-  site_name:        string;
-  site_tagline:     string;
-  site_email:       string;
-  site_phone:       string;
-  site_phone_2:     string;
-  site_address:     string;
-  site_city:        string;
-  site_country:     string;
-  site_hours:       string;
-  logo_url:         string;
-  promo_bar_text:   string;
-  interac_email:    string;
-  site_email_2:     string;
-  facebook_url:     string;
-  instagram_url:    string;
-  twitter_url:      string;
-  youtube_url:      string;
-  meta_description: string;
-  meta_keywords:    string;
+  site_name:               string;
+  site_tagline:            string;
+  site_email:              string;
+  site_phone:              string;
+  site_phone_2:            string;
+  site_address:            string;
+  site_city:               string;
+  site_country:            string;
+  site_hours:              string;
+  logo_url:                string;
+  promo_bar_text:          string;
+  interac_email:           string;
+  site_email_2:            string;
+  facebook_url:            string;
+  instagram_url:           string;
+  twitter_url:             string;
+  youtube_url:             string;
+  meta_description:        string;
+  meta_keywords:           string;
+  free_shipping_threshold: number;
+  free_shipping_enabled:   boolean;
 }
 
 const DEFAULTS: SiteSettings = {
@@ -42,8 +44,10 @@ const DEFAULTS: SiteSettings = {
   instagram_url:    '',
   twitter_url:      '',
   youtube_url:      '',
-  meta_description: "Toronto's destination for Bengali books, Islamic literature, cultural crafts, and unique gifts.",
-  meta_keywords:    'Bengali books Toronto, Islamic books Canada, cultural gifts, ATN Book & Crafts',
+  meta_description:        "Toronto's destination for Bengali books, Islamic literature, cultural crafts, and unique gifts.",
+  meta_keywords:           'Bengali books Toronto, Islamic books Canada, cultural gifts, ATN Book & Crafts',
+  free_shipping_threshold: 49,
+  free_shipping_enabled:   true,
 };
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -68,7 +72,16 @@ export const useSiteSettingsStore = create<SiteSettingsStore>()(
         if (loaded && Date.now() - loadedAt < CACHE_TTL_MS) return;
         try {
           const { data } = await api.get('/site-settings');
-          set({ settings: { ...DEFAULTS, ...data }, loaded: true, loadedAt: Date.now() });
+          set({
+            settings: {
+              ...DEFAULTS,
+              ...data,
+              free_shipping_threshold: Number(data.free_shipping_threshold ?? DEFAULTS.free_shipping_threshold),
+              free_shipping_enabled:   data.free_shipping_enabled === true || data.free_shipping_enabled === 'true',
+            },
+            loaded: true,
+            loadedAt: Date.now(),
+          });
         } catch {
           set({ loaded: true, loadedAt: Date.now() });
         }

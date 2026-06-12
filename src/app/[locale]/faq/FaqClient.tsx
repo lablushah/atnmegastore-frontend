@@ -1,13 +1,14 @@
 ﻿'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from '@/navigation';
 import {
   ChevronDown, CreditCard, Truck, Store, RefreshCw,
   BookOpen, UserCircle, Mail, MessageCircle,
 } from 'lucide-react';
+import { useSiteSettingsStore } from '@/store/siteSettingsStore';
 
-function buildCategories(email: string, interacEmail: string) {
+function buildCategories(email: string, interacEmail: string, threshold: number) {
   return [
     {
       id: 'orders',
@@ -69,7 +70,7 @@ function buildCategories(email: string, interacEmail: string) {
       faqs: [
         {
           q: 'Do you offer free shipping?',
-          a: 'Yes! We offer free shipping on all orders over $49. For orders below $49, shipping rates are calculated at checkout based on your location.',
+          a: `Yes! We offer free shipping on all orders over $${threshold}. For orders below $${threshold}, shipping rates are calculated at checkout based on your location.`,
         },
         {
           q: 'Where do you ship to?',
@@ -298,7 +299,10 @@ function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
 }
 
 export default function FaqClient({ email, interacEmail }: { email: string; interacEmail: string }) {
-  const categories = buildCategories(email, interacEmail);
+  const { settings, fetch } = useSiteSettingsStore();
+  useEffect(() => { fetch(); }, [fetch]);
+  const threshold  = Math.round(settings.free_shipping_threshold || 49);
+  const categories = buildCategories(email, interacEmail, threshold);
 
   return (
     <div className="bg-[#ecdfd2] min-h-screen">
