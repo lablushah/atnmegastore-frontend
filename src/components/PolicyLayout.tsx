@@ -17,8 +17,8 @@ export default async function PolicyLayout({ title, subtitle, lastUpdated, bread
       {/* Hero */}
       <div className="bg-[#213885] text-white py-12 px-4">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-2 text-[#5f3475] text-xs mb-4">
-            <Link href="/" className="hover:text-[#893172] transition-colors">Home</Link>
+          <div className="flex items-center gap-2 text-white/50 text-xs mb-4">
+            <Link href="/" className="text-white/70 hover:text-white transition-colors">Home</Link>
             <ChevronRight className="w-3 h-3" />
             <span className="text-[#f0c0a0]">{breadcrumb ?? title}</span>
           </div>
