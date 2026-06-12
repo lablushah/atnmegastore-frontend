@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Link } from '@/navigation';
+import Image from 'next/image';
 import api from '@/lib/api';
 import { BookOpen, ArrowLeft, CalendarDays, User } from 'lucide-react';
 
@@ -56,8 +57,15 @@ export default function BlogPostPage() {
     <div className="bg-[#ecdfd2] min-h-screen">
       {/* Hero image */}
       {post.cover_image_url && (
-        <div className="w-full h-64 md:h-96 overflow-hidden">
-          <img src={post.cover_image_url} alt={post.title} className="w-full h-full object-cover" />
+        <div className="relative w-full h-64 md:h-96 overflow-hidden">
+          <Image
+            src={post.cover_image_url}
+            alt={post.title}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
         </div>
       )}
 

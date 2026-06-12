@@ -46,7 +46,7 @@ function ProductsContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    api.get('/categories').then((r) => setCategories(r.data));
+    api.get('/categories').then((r) => setCategories(r.data)).catch(() => {});
   }, []);
 
   useEffect(() => {
