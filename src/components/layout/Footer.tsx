@@ -60,7 +60,7 @@ export default function Footer() {
           <div className="md:col-span-2">
             <div className="mb-4">
               {s.logo_url
-                ? <img src={s.logo_url} alt={s.site_name} className="h-10 w-auto object-contain mb-3" />
+                ? <img src={s.logo_url} alt={s.site_name} className="h-16 w-auto object-contain mb-3" />
                 : <div className="mb-3"><Logo size="sm" /></div>}
               {s.site_tagline && (
                 <p className="text-gray-500 text-sm leading-relaxed max-w-xs">{s.site_tagline}</p>

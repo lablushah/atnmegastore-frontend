@@ -91,7 +91,7 @@ export default function Header() {
 
             <Link href="/" className="shrink-0 flex items-center py-1">
               {settings.logo_url
-                ? <img src={settings.logo_url} alt={settings.site_name} className="h-14 w-auto object-contain max-w-[130px] sm:max-w-[220px]" />
+                ? <img src={settings.logo_url} alt={settings.site_name} className="h-16 sm:h-20 w-auto object-contain" />
                 : <Logo size="sm" />}
             </Link>
 

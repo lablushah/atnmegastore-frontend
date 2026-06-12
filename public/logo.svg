@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 130" role="img" aria-label="ATN Book &amp; Crafts">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 225 135" role="img" aria-label="ATN Book &amp; Crafts">
 
   <defs>
     <filter id="bm-shadow" x="-6%" y="-6%" width="116%" height="116%">
@@ -7,25 +7,18 @@
   </defs>
 
   <!--
-    Horizontal bookmark — V-notch cut into the RIGHT side:
-      top-left (0,0) → top-right (220,0)
-      → V-point (195, 65)          ← notch goes 25 px leftward at mid-height
-      → bottom-right (220,130)
-      → bottom-left (0,130) → close
-
-      Logo content right edge lands at x≈185, giving 10 px clearance to the V-point.
+    Horizontal bookmark — V-notch on right side
+    ViewBox 225×135, V-point at (200, 67.5)
+    Extra internal padding via translate(18,18):
+      T-circle top    : 34-32+18 = 20 px from top
+      badge bottom    : 72+28+18 = 118 px  (17 px from bottom)
+      left edge       : 27-24+18 = 21 px from left
+      right edge      : 147+24+18 = 189 px (11 px left of V-point)
   -->
-  <path d="M 0,0 L 220,0 L 195,65 L 220,130 L 0,130 Z"
+  <path d="M 0,0 L 225,0 L 200,67.5 L 225,135 L 0,135 Z"
         fill="#ecdfd2" filter="url(#bm-shadow)"/>
 
-  <!--
-    Logo elements translated (14, 16) to centre inside the bookmark:
-      T-circle top   : 34-32+16 = 18 px from top
-      badge bottom   : 72+28+16 = 116 px  (14 px from bottom)
-      left edge      : 27-24+14 = 17 px from left
-      right edge     : 147+24+14 = 185 px (10 px left of V-point at 195)
-  -->
-  <g transform="translate(14,16)">
+  <g transform="translate(18,18)">
 
     <!-- Circles – 4 px gap between each pair -->
     <circle cx="27"  cy="40" r="24" fill="#006838"/>
@@ -51,11 +44,11 @@
           font-size="38" font-weight="900"
           font-family="'Arial Black','Impact',Arial,sans-serif">N</text>
 
-    <!-- "Book & Crafts" — no background, bold text -->
+    <!-- "Book & Crafts" — larger, no background -->
     <text x="86.5" y="86"
           text-anchor="middle" dominant-baseline="central"
           fill="#213885"
-          font-size="22" font-weight="900" letter-spacing="1.5"
+          font-size="24" font-weight="900" letter-spacing="0.8"
           font-family="'Arial Black',Arial,'Helvetica Neue',sans-serif">Book &amp; Crafts</text>
 
   </g>
