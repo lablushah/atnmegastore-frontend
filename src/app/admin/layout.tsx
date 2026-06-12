@@ -150,7 +150,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Logo / brand */}
       <div className="px-4 py-4 border-b border-gray-200 shrink-0">
         <Link href="/admin" onClick={() => setOpen(false)}>
-          <Logo size="sm" />
+          <Logo size="lg" />
         </Link>
         <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest">Admin Panel</p>
       </div>
@@ -222,7 +222,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Mobile: logo */}
         <div className="md:hidden shrink-0">
-          <Logo size="sm" />
+          <Logo size="lg" />
         </div>
 
         {/* Desktop: spacer that aligns with sidebar width */}
