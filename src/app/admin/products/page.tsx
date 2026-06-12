@@ -307,62 +307,129 @@ export default function AdminProductsPage() {
       const autoTable = (await import('jspdf-autotable')).default;
 
       const catLabel = categoryFilter ? selectedCatName() : 'All Products';
-      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-      const pageW = doc.internal.pageSize.width;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageW = doc.internal.pageSize.width;   // 210mm
+      const pageH = doc.internal.pageSize.height;  // 297mm
+      const ML = 14, MR = 14;                      // margins
 
-      // ── Logo ─────────────────────────────────────────────────────────────
+      // ── Embed Bengali-supporting font ───────────────────────────────────
+      let bengaliFont = 'helvetica';
+      try {
+        const fontResp = await fetch('/fonts/NotoSansBengali-Regular.ttf');
+        if (fontResp.ok) {
+          const buf   = await fontResp.arrayBuffer();
+          const bytes = new Uint8Array(buf);
+          let bin = '';
+          for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+          const b64 = btoa(bin);
+          doc.addFileToVFS('NotoSansBengali-Regular.ttf', b64);
+          doc.addFont('NotoSansBengali-Regular.ttf', 'NotoSansBengali', 'normal');
+          bengaliFont = 'NotoSansBengali';
+        }
+      } catch { /* fall back to helvetica */ }
+
+      // ── Logo (left) ─────────────────────────────────────────────────────
       const logoB64 = await logoToBase64('/logo.svg');
-      let headerY = 8;
+      const LOGO_W = 38, LOGO_H = 12;
       if (logoB64) {
-        doc.addImage(logoB64, 'PNG', 14, 6, 42, 12);
-        headerY = 22;
+        doc.addImage(logoB64, 'PNG', ML, 8, LOGO_W, LOGO_H);
       } else {
-        doc.setFontSize(13);
         doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
         doc.setTextColor(33, 56, 133);
-        doc.text('ATN BOOK & CRAFTS', 14, 13);
-        headerY = 20;
+        doc.text('ATN Book & Crafts', ML, 15);
       }
 
-      // ── Title ─────────────────────────────────────────────────────────────
-      doc.setFontSize(15);
+      // ── Company info (right) ─────────────────────────────────────────────
+      const RX = pageW - MR;
       doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
       doc.setTextColor(33, 56, 133);
-      doc.text(`List of ${catLabel}`, 14, headerY);
-
-      // ── Sub-header ────────────────────────────────────────────────────────
-      doc.setFontSize(8);
+      doc.text('ATN Book & Crafts', RX, 10, { align: 'right' });
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(120, 120, 120);
-      const dateStr = new Date().toLocaleDateString('en-CA', { dateStyle: 'long' });
-      doc.text(`Exported ${dateStr}  ·  ${all.length} products`, 14, headerY + 6);
+      doc.setFontSize(7.5);
+      doc.setTextColor(80, 80, 80);
+      doc.text('416-671-6382  ·  416-686-3134', RX, 14.5, { align: 'right' });
+      doc.text('info@atnmegastore.ca', RX, 18.5, { align: 'right' });
+      doc.text('atnmegastore.ca', RX, 22.5, { align: 'right' });
 
-      // ── Table ─────────────────────────────────────────────────────────────
+      // ── Divider ──────────────────────────────────────────────────────────
+      doc.setDrawColor(220, 220, 230);
+      doc.setLineWidth(0.3);
+      doc.line(ML, 27, pageW - MR, 27);
+
+      // ── Report title ─────────────────────────────────────────────────────
+      doc.setFont(bengaliFont, 'normal');
+      doc.setFontSize(13);
+      doc.setTextColor(33, 56, 133);
+      doc.text(`List of ${catLabel}`, ML, 33);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(130, 130, 130);
+      const dateStr = new Date().toLocaleDateString('en-CA', { dateStyle: 'long' });
+      doc.text(`Exported ${dateStr}  ·  ${all.length} products`, ML, 38);
+
+      // ── Table ────────────────────────────────────────────────────────────
       const selectedDefs = PDF_COL_DEFS.filter(c => pdfCols.includes(c.key));
       const head = [selectedDefs.map(c => c.label)];
       const body = all.map(p => selectedDefs.map(col => getProductValue(p, col.key)));
 
+      const descIdx = pdfCols.indexOf('description');
+      const colStyles: Record<number, any> = {};
+      if (descIdx >= 0) colStyles[descIdx] = { cellWidth: 55 };
+
       autoTable(doc, {
         head,
         body,
-        startY: headerY + 10,
-        styles:          { fontSize: 8, cellPadding: 2.5, overflow: 'linebreak' },
-        headStyles:      { fillColor: [33, 56, 133], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5 },
-        alternateRowStyles: { fillColor: [240, 245, 255] },
-        columnStyles:    pdfCols.includes('description') ? { [pdfCols.indexOf('description')]: { cellWidth: 60 } } : {},
-        margin:          { left: 14, right: 14 },
-        didDrawPage:     (d: any) => {
-          // Page footer
-          const pN = doc.getNumberOfPages();
-          doc.setFontSize(7);
-          doc.setTextColor(160, 160, 160);
-          doc.text(
-            `Page ${d.pageNumber} of ${pN}  ·  ATN Book & Crafts  ·  atnmegastore.ca`,
-            pageW / 2, doc.internal.pageSize.height - 5,
-            { align: 'center' }
-          );
+        startY: 42,
+        styles: {
+          font:        bengaliFont,
+          fontSize:    8,
+          cellPadding: 2.5,
+          overflow:    'linebreak',
+          textColor:   [30, 30, 30],
         },
+        headStyles: {
+          font:      'helvetica',
+          fontStyle: 'bold',
+          fontSize:  8,
+          fillColor: [33, 56, 133],
+          textColor: [255, 255, 255],
+        },
+        alternateRowStyles: { fillColor: [243, 246, 255] },
+        columnStyles: colStyles,
+        margin: { left: ML, right: MR, bottom: 18 },
       });
+
+      // ── Footer on every page (added after table so total is known) ───────
+      const totalPages = doc.getNumberOfPages();
+      for (let pg = 1; pg <= totalPages; pg++) {
+        doc.setPage(pg);
+        doc.setFont('helvetica', 'normal');
+
+        // Address line
+        doc.setFontSize(7);
+        doc.setTextColor(140, 140, 140);
+        doc.text(
+          '2972 Danforth Avenue, Toronto, ON  M4C 1M6, Canada  ·  Mon – Sun · 2:00 PM – 8:00 PM',
+          pageW / 2, pageH - 9,
+          { align: 'center' }
+        );
+
+        // Separator
+        doc.setDrawColor(220, 220, 230);
+        doc.setLineWidth(0.25);
+        doc.line(ML, pageH - 12, pageW - MR, pageH - 12);
+
+        // Page number
+        doc.setFontSize(6.5);
+        doc.setTextColor(170, 170, 170);
+        doc.text(
+          `Page ${pg} of ${totalPages}  ·  ATN Book & Crafts  ·  atnmegastore.ca`,
+          pageW / 2, pageH - 5,
+          { align: 'center' }
+        );
+      }
 
       const filename = `${catLabel.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
       doc.save(filename);
