@@ -7,7 +7,8 @@ import { canManageProducts } from '@/lib/types';
 import api from '@/lib/api';
 import {
   Plus, Pencil, Trash2, Search, Star, Check, Upload, Link, X, Images,
-  Download, FileSpreadsheet, FileText, ChevronDown, Filter,
+  Download, FileSpreadsheet, FileText, ChevronDown, Filter, UploadCloud,
+  AlertCircle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Spinner from '@/components/ui/Spinner';
@@ -115,6 +116,14 @@ export default function AdminProductsPage() {
   );
   const [exportLoading, setExportLoading] = useState(false);
 
+  // Import state
+  const importFileRef = useRef<HTMLInputElement>(null);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importRows, setImportRows]           = useState<any[]>([]);
+  const [importFilename, setImportFilename]   = useState('');
+  const [importLoading, setImportLoading]     = useState(false);
+  const [importResult, setImportResult]       = useState<{ updated: number; skipped: number; errors: string[]; total: number } | null>(null);
+
   useEffect(() => {
     if (!user) { router.push('/login'); return; }
     if (!canManageProducts(user)) { router.push('/admin'); return; }
@@ -177,6 +186,79 @@ export default function AdminProductsPage() {
     if (search)         params.search = search;
     const { data } = await api.get('/admin/products', { params });
     return (data.data ?? []) as Product[];
+  }
+
+  // ── Import helpers ────────────────────────────────────────────────────────
+  async function handleImportFile(file: File) {
+    if (!file.name.match(/\.(xlsx|xls)$/i)) { toast.error('Please select an .xlsx or .xls file'); return; }
+    try {
+      const XLSX = (await import('xlsx')).default;
+      const buf  = await file.arrayBuffer();
+      const wb   = XLSX.read(buf, { type: 'array' });
+      const ws   = wb.Sheets[wb.SheetNames[0]];
+      const raw  = XLSX.utils.sheet_to_json<any>(ws, { defval: '' });
+
+      // Map header names → internal keys. We look for the locked "ID" column to match rows.
+      const rows = raw
+        .map((r: any) => {
+          const id = parseInt(r['ID'] ?? r['id'] ?? '', 10);
+          if (!id || isNaN(id)) return null;
+
+          const parseYesNo = (v: any): boolean | null => {
+            if (typeof v === 'boolean') return v;
+            if (typeof v === 'number')  return v !== 0;
+            const s = String(v ?? '').trim().toLowerCase();
+            if (s === 'yes' || s === '1' || s === 'true')  return true;
+            if (s === 'no'  || s === '0' || s === 'false') return false;
+            return null;
+          };
+
+          const trimOrNull = (v: any) => { const s = String(v ?? '').trim(); return s === '' ? null : s; };
+
+          const stockRaw = r['Stock (Qty)'] ?? r['Stock'] ?? r['stock'] ?? '';
+          const priceRaw = (r['Price ($)'] ?? r['Price'] ?? r['price'] ?? '').toString().replace(/[$,]/g, '');
+
+          return {
+            id,
+            stock:       stockRaw !== '' && stockRaw !== null ? parseInt(String(stockRaw), 10)  : null,
+            price:       priceRaw !== ''                      ? parseFloat(priceRaw)             : null,
+            active:      parseYesNo(r['Active']   ?? r['active']),
+            featured:    parseYesNo(r['Featured'] ?? r['featured']),
+            author:      trimOrNull(r['Author']      ?? r['author']),
+            genre:       trimOrNull(r['Genre']       ?? r['genre']),
+            description: trimOrNull(r['Description'] ?? r['description']),
+          };
+        })
+        .filter(Boolean);
+
+      if (rows.length === 0) { toast.error('No valid rows found — make sure the file has an ID column'); return; }
+
+      setImportRows(rows);
+      setImportFilename(file.name);
+      setImportResult(null);
+      setShowImportModal(true);
+    } catch (err) {
+      console.error(err);
+      toast.error('Could not read the Excel file');
+    }
+  }
+
+  async function submitImport() {
+    setImportLoading(true);
+    try {
+      const { data } = await api.post('/admin/products/import', { products: importRows });
+      setImportResult(data);
+      if (data.updated > 0) {
+        toast.success(`${data.updated} products updated`);
+        load(page, search, categoryFilter);
+      } else {
+        toast.error('No products were updated');
+      }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Import failed');
+    } finally {
+      setImportLoading(false);
+    }
   }
 
   async function exportExcel() {
@@ -457,6 +539,25 @@ export default function AdminProductsPage() {
           )}
         </div>
 
+        {/* Import Excel button */}
+        <>
+          <input
+            ref={importFileRef}
+            type="file"
+            accept=".xlsx,.xls"
+            className="hidden"
+            onChange={e => { const f = e.target.files?.[0]; if (f) handleImportFile(f); e.target.value = ''; }}
+          />
+          <button
+            onClick={() => importFileRef.current?.click()}
+            className="flex items-center gap-1.5 border border-green-600 bg-green-50 hover:bg-green-100 px-3 py-2 text-sm text-green-700 font-medium transition-colors"
+            title="Upload an edited Excel file to update products"
+          >
+            <UploadCloud className="w-4 h-4" />
+            Import Excel
+          </button>
+        </>
+
         {/* Export dropdown */}
         <div className="relative" ref={exportMenuRef}>
           <button
@@ -604,6 +705,124 @@ export default function AdminProductsPage() {
             </div>
           )}
         </>
+      )}
+
+      {/* ── Import Excel modal ──────────────────────────────────────────── */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-lg shadow-xl">
+            <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-[#1a1a1a] flex items-center gap-2">
+                  <UploadCloud className="w-4 h-4 text-green-600" /> Import from Excel
+                </h2>
+                <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{importFilename}</p>
+              </div>
+              <button onClick={() => setShowImportModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="px-5 py-4">
+              {!importResult ? (
+                <>
+                  {/* Preview summary */}
+                  <div className="bg-green-50 border border-green-200 rounded p-3 mb-4">
+                    <p className="text-sm text-green-800 font-medium">{importRows.length} products ready to update</p>
+                    <p className="text-xs text-green-600 mt-1">
+                      Editable fields: Stock, Price, Active, Featured, Author, Genre, Description
+                    </p>
+                    <p className="text-xs text-green-600">
+                      Read-only fields will be ignored: Name, Secondary Name, Category, Slug
+                    </p>
+                  </div>
+
+                  {/* Sample preview — first 5 rows */}
+                  <div className="mb-4">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Preview (first 5 rows)</p>
+                    <div className="overflow-x-auto border border-gray-100 rounded">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="bg-gray-50">
+                            {['ID', 'Stock', 'Price', 'Active', 'Author'].map(h => (
+                              <th key={h} className="px-2 py-1.5 text-left text-gray-500 font-medium border-b border-gray-100 whitespace-nowrap">{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {importRows.slice(0, 5).map((r, i) => (
+                            <tr key={i} className="border-b border-gray-50 last:border-0">
+                              <td className="px-2 py-1.5 text-gray-500">{r.id}</td>
+                              <td className="px-2 py-1.5">{r.stock ?? '—'}</td>
+                              <td className="px-2 py-1.5">{r.price != null ? `$${r.price.toFixed(2)}` : '—'}</td>
+                              <td className="px-2 py-1.5">{r.active === null ? '—' : r.active ? 'Yes' : 'No'}</td>
+                              <td className="px-2 py-1.5 max-w-24 truncate">{r.author ?? '—'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {importRows.length > 5 && (
+                      <p className="text-xs text-gray-400 mt-1 text-right">…and {importRows.length - 5} more rows</p>
+                    )}
+                  </div>
+
+                  <div className="bg-amber-50 border border-amber-200 rounded px-3 py-2 flex gap-2 text-xs text-amber-700">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                    <span>This will overwrite existing values for all rows in the file. Rows where nothing changed will be skipped automatically.</span>
+                  </div>
+                </>
+              ) : (
+                /* Result panel */
+                <div className="space-y-3">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-green-50 border border-green-200 rounded p-3 text-center">
+                      <p className="text-2xl font-bold text-green-700">{importResult.updated}</p>
+                      <p className="text-xs text-green-600 mt-0.5">Updated</p>
+                    </div>
+                    <div className="bg-gray-50 border border-gray-200 rounded p-3 text-center">
+                      <p className="text-2xl font-bold text-gray-500">{importResult.skipped}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">Skipped</p>
+                    </div>
+                    <div className={`border rounded p-3 text-center ${importResult.errors.length > 0 ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'}`}>
+                      <p className={`text-2xl font-bold ${importResult.errors.length > 0 ? 'text-red-600' : 'text-gray-400'}`}>{importResult.errors.length}</p>
+                      <p className={`text-xs mt-0.5 ${importResult.errors.length > 0 ? 'text-red-500' : 'text-gray-400'}`}>Errors</p>
+                    </div>
+                  </div>
+                  {importResult.errors.length > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded p-3 max-h-32 overflow-y-auto">
+                      <p className="text-xs font-semibold text-red-600 mb-1">Errors:</p>
+                      {importResult.errors.map((e, i) => (
+                        <p key={i} className="text-xs text-red-500">{e}</p>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-400 text-center">{importResult.total} total rows processed</p>
+                </div>
+              )}
+            </div>
+
+            <div className="px-5 py-3 border-t border-gray-100 bg-gray-50 flex gap-3 justify-end">
+              <button
+                onClick={() => { setShowImportModal(false); setImportResult(null); setImportRows([]); }}
+                className="border border-gray-300 px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-100"
+              >
+                {importResult ? 'Close' : 'Cancel'}
+              </button>
+              {!importResult && (
+                <button
+                  onClick={submitImport}
+                  disabled={importLoading || importRows.length === 0}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-5 py-1.5 text-sm font-medium transition-colors"
+                >
+                  {importLoading
+                    ? <><span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Importing…</>
+                    : <><UploadCloud className="w-4 h-4" /> Update {importRows.length} Products</>}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ── PDF column picker modal ──────────────────────────────────────── */}
