@@ -13,7 +13,7 @@ import {
   Package, ShoppingBag, DollarSign, Clock, Users, UserCircle,
   Mail, Newspaper, Tag, Image, Wrench, ToggleLeft, ToggleRight,
   Share2, Ticket, CheckCircle, Circle, AlertTriangle, ClipboardList,
-  TrendingUp, TrendingDown, Truck, Settings, Gift,
+  TrendingUp, TrendingDown, Truck, Settings, Gift, X,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import dynamic from 'next/dynamic';
@@ -23,7 +23,7 @@ const DashboardCharts = dynamic(() => import('@/components/admin/DashboardCharts
 interface OrderStats   { total_orders: number; total_revenue: number; awaiting_payment_orders: number; paid_orders: number }
 interface ExtStats     { newsletter_subscribers: number | null; social_posts_published: number | null; discount_codes: number | null }
 type TaskStatus        = 'open' | 'in_progress' | 'done';
-interface DashTask     { id: number; title: string; priority: string; status: TaskStatus; due_date: string | null }
+interface DashTask     { id: number; title: string; description: string | null; priority: string; status: TaskStatus; category: string; due_date: string | null }
 interface TaskStats    { open: number; urgent: number; overdue: number }
 interface Kpi          { revenue_this_month: number; revenue_last_month: number; orders_this_month: number; new_customers_month: number }
 
@@ -36,11 +36,12 @@ export default function AdminDashboard() {
 
   const [orderStats,  setOrderStats]  = useState<OrderStats | null>(null);
   const [extStats,    setExtStats]    = useState<ExtStats>({ newsletter_subscribers: null, social_posts_published: null, discount_codes: null });
-  const [tasks,       setTasks]       = useState<DashTask[]>([]);
-  const [taskStats,   setTaskStats]   = useState<TaskStats | null>(null);
-  const [maintenance, setMaintenance] = useState<boolean | null>(null);
-  const [toggling,    setToggling]    = useState(false);
-  const [kpi,         setKpi]         = useState<Kpi | null>(null);
+  const [tasks,        setTasks]        = useState<DashTask[]>([]);
+  const [taskStats,    setTaskStats]    = useState<TaskStats | null>(null);
+  const [maintenance,  setMaintenance]  = useState<boolean | null>(null);
+  const [toggling,     setToggling]     = useState(false);
+  const [kpi,          setKpi]          = useState<Kpi | null>(null);
+  const [selectedTask, setSelectedTask] = useState<DashTask | null>(null);
 
   useEffect(() => {
     if (!user) { router.push('/login'); return; }
@@ -175,6 +176,7 @@ export default function AdminDashboard() {
   const showCharts = canManageOrders(user);
 
   return (
+    <>
     <div className="max-w-full p-4 space-y-4">
 
       {/* ── Header ── */}
@@ -270,8 +272,10 @@ export default function AdminDashboard() {
             ) : tasks.map(t => {
               const overdue = t.due_date && new Date(t.due_date) < new Date();
               return (
-                <div key={t.id} className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 transition-colors">
-                  <button onClick={() => cycleTaskStatus(t)}
+                <div key={t.id}
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 transition-colors cursor-pointer"
+                  onClick={() => setSelectedTask(t)}>
+                  <button onClick={e => { e.stopPropagation(); cycleTaskStatus(t); }}
                     title={t.status === 'open' ? 'Mark in progress' : 'Mark done'}
                     className="shrink-0 hover:scale-110 transition-transform">
                     {t.status === 'in_progress'
@@ -295,5 +299,70 @@ export default function AdminDashboard() {
 
       </div>
     </div>
+
+    {/* ── Task detail popup ─────────────────────────────────────────────── */}
+    {selectedTask && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
+        onClick={() => setSelectedTask(null)}>
+        <div className="bg-white w-full max-w-lg shadow-xl" onClick={e => e.stopPropagation()}>
+
+          {/* Header */}
+          <div className="flex items-start justify-between gap-3 px-6 py-4 border-b border-gray-100">
+            <h2 className="text-base font-bold text-gray-900 leading-snug">{selectedTask.title}</h2>
+            <button onClick={() => setSelectedTask(null)} className="shrink-0 text-gray-400 hover:text-gray-700 mt-0.5">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Meta badges */}
+          <div className="flex flex-wrap gap-2 px-6 py-3 border-b border-gray-100">
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide ${
+              selectedTask.status === 'done'        ? 'bg-green-100 text-green-700' :
+              selectedTask.status === 'in_progress' ? 'bg-blue-100 text-blue-700'  :
+                                                      'bg-gray-100 text-gray-600'
+            }`}>
+              {selectedTask.status === 'in_progress' ? 'In Progress' : selectedTask.status === 'done' ? 'Done' : 'Open'}
+            </span>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide ${
+              selectedTask.priority === 'urgent' ? 'bg-red-100 text-red-700'    :
+              selectedTask.priority === 'high'   ? 'bg-orange-100 text-orange-700' :
+              selectedTask.priority === 'medium' ? 'bg-blue-100 text-blue-700'  :
+                                                   'bg-gray-100 text-gray-500'
+            }`}>{selectedTask.priority}</span>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 uppercase tracking-wide">
+              {selectedTask.category}
+            </span>
+            {selectedTask.due_date && (
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide ${
+                new Date(selectedTask.due_date) < new Date() && selectedTask.status !== 'done'
+                  ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'
+              }`}>
+                Due {new Date(selectedTask.due_date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </span>
+            )}
+          </div>
+
+          {/* Description */}
+          <div className="px-6 py-4 min-h-[80px]">
+            {selectedTask.description
+              ? <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{selectedTask.description}</p>
+              : <p className="text-sm text-gray-400 italic">No description provided.</p>}
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between px-6 py-3 border-t border-gray-100 bg-gray-50">
+            <button onClick={() => { cycleTaskStatus(selectedTask); setSelectedTask(null); }}
+              className="text-xs text-[#213885] hover:underline font-medium">
+              {selectedTask.status === 'open' ? 'Mark in progress →' : 'Mark done →'}
+            </button>
+            <Link href="/admin/tasks" className="text-xs text-gray-500 hover:text-[#213885] hover:underline">
+              Open Task Board →
+            </Link>
+          </div>
+
+        </div>
+      </div>
+    )}
+    </>
   );
 }

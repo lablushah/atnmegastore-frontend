@@ -90,7 +90,7 @@ export default function TasksPage() {
     finally { setLoading(false); }
   }
 
-  function openNew() { setEditing(null); setForm(EMPTY_FORM); setShowModal(true); }
+  function openNew() { setEditing(null); setForm({ ...EMPTY_FORM, assigned_to: user ? String(user.id) : '' }); setShowModal(true); }
   function openEdit(t: Task) {
     setEditing(t);
     setForm({ title: t.title, description: t.description ?? '', priority: t.priority, category: t.category, assigned_to: String(t.assigned_to ?? ''), due_date: t.due_date ?? '' });
