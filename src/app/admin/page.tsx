@@ -83,6 +83,18 @@ export default function AdminDashboard() {
     Promise.all(calls);
   }, [user]);
 
+  async function cycleTaskStatus(t: DashTask) {
+    const next: TaskStatus = t.status === 'open' ? 'in_progress' : 'done';
+    try {
+      await api.put(`/admin/tasks/${t.id}`, { status: next });
+      if (next === 'done') {
+        setTasks(ts => ts.filter(x => x.id !== t.id));
+      } else {
+        setTasks(ts => ts.map(x => x.id === t.id ? { ...x, status: next } : x));
+      }
+    } catch { toast.error('Could not update task'); }
+  }
+
   async function toggleMaintenance() {
     if (maintenance === null) return;
     setToggling(true);
@@ -259,9 +271,13 @@ export default function AdminDashboard() {
               const overdue = t.due_date && new Date(t.due_date) < new Date();
               return (
                 <div key={t.id} className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 transition-colors">
-                  {t.status === 'in_progress'
-                    ? <Clock   className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                    : <Circle  className="w-3.5 h-3.5 text-gray-300 shrink-0" />}
+                  <button onClick={() => cycleTaskStatus(t)}
+                    title={t.status === 'open' ? 'Mark in progress' : 'Mark done'}
+                    className="shrink-0 hover:scale-110 transition-transform">
+                    {t.status === 'in_progress'
+                      ? <Clock  className="w-3.5 h-3.5 text-blue-400" />
+                      : <Circle className="w-3.5 h-3.5 text-gray-300 hover:text-gray-500" />}
+                  </button>
                   <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${PRI_DOT[t.priority] ?? 'bg-gray-300'}`} />
                   <p className="flex-1 text-xs text-gray-800 truncate">{t.title}</p>
                   <span className={`text-[10px] font-semibold shrink-0 ${PRI_COLOR[t.priority] ?? 'text-gray-400'}`}>{t.priority}</span>
