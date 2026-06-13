@@ -13,7 +13,6 @@ export interface SiteSettings {
   site_country:            string;
   site_hours:              string;
   logo_url:                string;
-  promo_bar_text:          string;
   interac_email:           string;
   site_email_2:            string;
   facebook_url:            string;
@@ -37,7 +36,6 @@ const DEFAULTS: SiteSettings = {
   site_country:     'Canada',
   site_hours:       'Mon – Sun · 2:00 PM – 8:00 PM',
   logo_url:         '/logo.svg',
-  promo_bar_text:   'Free shipping on orders over $49 · Call us: 416-671-6382 · Open 7 days · 2 PM – 8 PM',
   interac_email:    'info@atnmegastore.ca',
   site_email_2:     'atnmegastore@gmail.com',
   facebook_url:     '',

@@ -11,7 +11,6 @@ const DEFAULTS: Record<string, string> = {
   site_hours:     'Mon – Sun · 2:00 PM – 8:00 PM',
   interac_email:  'info@atnmegastore.ca',
   site_email_2:   'atnmegastore@gmail.com',
-  promo_bar_text: '',
 };
 
 /** Fetch site settings server-side with 5-minute cache. Falls back to defaults. */
