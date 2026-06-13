@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
-import { canManageEmployees } from '@/lib/types';
+import { isDeveloper } from '@/lib/types';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import { Package, CheckCircle, RefreshCw, Loader2, Info, AlertTriangle, XCircle } from 'lucide-react';
@@ -20,7 +20,7 @@ export default function DependenciesPage() {
 
   useEffect(() => {
     if (!user) { router.push('/login'); return; }
-    if (!canManageEmployees(user)) { router.push('/admin'); return; }
+    if (!isDeveloper(user)) { router.push('/admin'); return; }
   }, [user]);
 
   async function check() {

@@ -403,24 +403,25 @@ const ARTICLES: Article[] = [
     id: 'employee-roles',
     category: 'settings',
     title: 'Managing employees and roles',
-    keywords: ['employee', 'staff', 'role', 'admin', 'sales', 'product manager', 'permissions'],
+    keywords: ['employee', 'staff', 'role', 'owner', 'sales', 'product manager', 'marketing', 'permissions'],
     body: (
       <div>
-        <p className="text-sm text-gray-600 mb-4">Three roles control what each staff member can see and do in the admin panel.</p>
+        <p className="text-sm text-gray-600 mb-4">Each staff member can hold one or more roles. Roles control which sections they can see and what actions they can take.</p>
         <H text="Role permissions" />
         <div className="space-y-2 text-sm text-gray-700 mb-3">
-          <p><strong>Admin</strong> — Full access: all sections, site settings, employees, payment methods.</p>
-          <p><strong>Product Manager</strong> — Manages products, categories, content (slides, pages, events, blog). Cannot access orders, customers, or settings.</p>
-          <p><strong>Sales</strong> — Manages orders and customers. Cannot edit products or settings.</p>
+          <p><strong>Store Owner</strong> — Full access to all store sections, settings, employees, and site tools.</p>
+          <p><strong>Product Manager</strong> — Manages products, categories, and content (slides, pages, events, blog). Cannot access orders, campaigns, or settings.</p>
+          <p><strong>Sales</strong> — Manages orders, customers, discount codes, shipping, and gift cards.</p>
+          <p><strong>Marketing</strong> — Manages email campaigns, newsletter subscribers, and social posts.</p>
         </div>
         <H text="Adding an employee" />
         <Step n={1} text='Go to Admin → Employees → Add Employee.' />
-        <Step n={2} text='Enter their name, email, and temporary password.' />
-        <Step n={3} text='Select their role.' />
-        <Step n={4} text='Save. They can now log in at atnmegastore.ca/login.' />
+        <Step n={2} text='Enter their name and email address.' />
+        <Step n={3} text='Select one or more roles (employees can hold multiple roles).' />
+        <Step n={4} text='Save. A temporary password is emailed to them automatically.' />
         <H text="Two-factor authentication (2FA)" />
         <p className="text-sm text-gray-700">2FA is mandatory for all employee accounts. On first login, they are redirected to set up an authenticator app (Google Authenticator, Microsoft Authenticator, etc.) before they can access the dashboard.</p>
-        <Tip text="Assign the minimum role needed. Use Product Manager for staff who only update the catalogue, and Sales for staff who process orders." />
+        <Tip text="Assign only the roles an employee needs. A staff member who manages both products and orders should have both Product Manager and Sales roles." />
       </div>
     ),
   },

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
-import { isStaff } from '@/lib/types';
+import { isStaff, canManageEmployees } from '@/lib/types';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import {
@@ -76,7 +76,7 @@ export default function TasksPage() {
     if (!user) { router.push('/login'); return; }
     if (!isStaff(user)) { router.push('/'); return; }
     load();
-    if (user.role === 'admin') {
+    if (canManageEmployees(user)) {
       api.get('/admin/employees').then(r => setEmployees(r.data.data ?? r.data)).catch(() => {});
     }
   }, [user]);

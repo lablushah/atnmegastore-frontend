@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
-import { canManageEmployees } from '@/lib/types';
+import { canAccessSiteTools } from '@/lib/types';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import { CheckCircle, XCircle, AlertTriangle, RefreshCw, Loader2, Info } from 'lucide-react';
@@ -26,7 +26,7 @@ export default function HealthPage() {
 
   useEffect(() => {
     if (!user) { router.push('/login'); return; }
-    if (!canManageEmployees(user)) { router.push('/admin'); return; }
+    if (!canAccessSiteTools(user)) { router.push('/admin'); return; }
     load();
   }, [user]);
 

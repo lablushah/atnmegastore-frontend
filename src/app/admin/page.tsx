@@ -186,7 +186,7 @@ export default function AdminDashboard() {
           <p className="text-sm text-[#6b6b6b] mt-0.5">
             Welcome back, <span className="font-semibold text-[#213885]">{user.name}</span>
             <span className="ml-2 text-xs bg-[#e8e3f0] text-[#6b6b6b] px-2 py-0.5 rounded-full">
-              {user.role_label ?? user.role}
+              {user.role_label}
             </span>
           </p>
         </div>

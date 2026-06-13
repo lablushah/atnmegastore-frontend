@@ -66,17 +66,17 @@ export interface Order {
   created_at: string;
 }
 
-export type EmployeeRole = 'admin' | 'product_manager' | 'sales';
+export type EmployeeRole = 'developer' | 'owner' | 'product_manager' | 'sales' | 'marketing';
 export type UserType     = 'employee' | 'customer';
 
 export interface User {
   id: number;
   name: string;
   email: string;
-  type: UserType;              // 'employee' | 'customer'
-  role: EmployeeRole | 'customer';
+  type: UserType;
+  roles: EmployeeRole[];       // array — employees have one or more roles
   role_label: string;
-  is_admin?: boolean;
+  is_staff?: boolean;
   // employee-specific
   phone?: string;
   job_title?: string;
@@ -100,10 +100,18 @@ export interface User {
 }
 
 export const EMPLOYEE_ROLE_COLORS: Record<EmployeeRole, string> = {
-  admin:           'bg-red-100 text-red-700',
+  developer:       'bg-gray-800 text-white',
+  owner:           'bg-red-100 text-red-700',
   product_manager: 'bg-purple-100 text-purple-700',
   sales:           'bg-blue-100 text-blue-700',
+  marketing:       'bg-green-100 text-green-700',
 };
+
+// ── Permission helpers ────────────────────────────────────────────────────────
+
+export function hasRole(user: User | null, ...roles: EmployeeRole[]): boolean {
+  return !!user && user.type === 'employee' && roles.some(r => (user.roles ?? []).includes(r));
+}
 
 export function isEmployee(user: User | null): boolean {
   return !!user && user.type === 'employee';
@@ -113,28 +121,40 @@ export function isStaff(user: User | null): boolean {
   return isEmployee(user);
 }
 
+export function isDeveloper(user: User | null): boolean {
+  return hasRole(user, 'developer');
+}
+
+export function isOwner(user: User | null): boolean {
+  return hasRole(user, 'owner');
+}
+
+export function canAccessSiteTools(user: User | null): boolean {
+  return hasRole(user, 'developer', 'owner');
+}
+
 export function canManageProducts(user: User | null): boolean {
-  return !!user && user.type === 'employee' && ['admin', 'product_manager'].includes(user.role);
+  return hasRole(user, 'developer', 'owner', 'product_manager');
 }
 
 export function canManageOrders(user: User | null): boolean {
-  return !!user && user.type === 'employee' && ['admin', 'sales'].includes(user.role);
+  return hasRole(user, 'developer', 'owner', 'sales');
 }
 
 export function canManageEmployees(user: User | null): boolean {
-  return !!user && user.type === 'employee' && user.role === 'admin';
+  return hasRole(user, 'developer', 'owner');
 }
 
 export function canManageCustomers(user: User | null): boolean {
-  return !!user && user.type === 'employee' && ['admin', 'sales'].includes(user.role);
+  return hasRole(user, 'developer', 'owner', 'sales');
 }
 
 export function canManageCampaigns(user: User | null): boolean {
-  return !!user && user.type === 'employee' && ['admin', 'sales'].includes(user.role);
+  return hasRole(user, 'developer', 'owner', 'marketing');
 }
 
 export function canManageSocialPosts(user: User | null): boolean {
-  return !!user && user.type === 'employee' && ['admin', 'sales'].includes(user.role);
+  return hasRole(user, 'developer', 'owner', 'marketing');
 }
 
 // Legacy alias

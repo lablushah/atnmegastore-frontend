@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
-import { canManageEmployees } from '@/lib/types';
+import { canAccessSiteTools, isDeveloper } from '@/lib/types';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import {
@@ -54,7 +54,7 @@ export default function BackupPage() {
 
   useEffect(() => {
     if (!user) { router.push('/login'); return; }
-    if (!canManageEmployees(user)) { router.push('/admin'); return; }
+    if (!canAccessSiteTools(user)) { router.push('/admin'); return; }
     loadDisk();
     loadBackups();
   }, [user]);
@@ -159,7 +159,7 @@ export default function BackupPage() {
           <p className="text-xs text-gray-500 mt-0.5">Choose what you want to back up. Each backup is saved on the server and can be downloaded to your computer.</p>
         </div>
         <div className="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {backupTypes.map(({ type, label, icon: Icon, desc, explain, recommended }) => (
+          {backupTypes.filter(b => b.type !== 'code' || isDeveloper(user)).map(({ type, label, icon: Icon, desc, explain, recommended }) => (
             <div key={type} className={`border ${recommended ? 'border-[#213885]' : 'border-[#cccacc]'} flex flex-col`}>
               {recommended && (
                 <div className="bg-[#213885] text-white text-[10px] font-bold text-center py-1 uppercase tracking-wider">Recommended weekly</div>

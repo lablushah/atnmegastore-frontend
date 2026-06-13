@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
-import { canManageEmployees } from '@/lib/types';
+import { canAccessSiteTools } from '@/lib/types';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import { RefreshCw, Trash2, Loader2, Info, AlertTriangle } from 'lucide-react';
@@ -16,7 +16,7 @@ export default function CachePage() {
 
   useEffect(() => {
     if (!user) { router.push('/login'); return; }
-    if (!canManageEmployees(user)) { router.push('/admin'); return; }
+    if (!canAccessSiteTools(user)) { router.push('/admin'); return; }
     api.get('/admin/site-tools/cache/status').then(r => setClearedAt(r.data.cleared_at)).catch(() => {});
   }, [user]);
 

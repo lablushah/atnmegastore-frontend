@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/authStore';
 import {
   canManageProducts, canManageOrders, canManageEmployees,
   canManageCustomers, canManageCampaigns, canManageSocialPosts,
+  canAccessSiteTools, isDeveloper,
 } from '@/lib/types';
 import {
   LayoutDashboard, ShoppingBag, Tag, Package, Users,
@@ -130,13 +131,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     },
     {
       title: 'Site Tools',
-      items: canManageEmployees(user) ? [
+      items: canAccessSiteTools(user) ? [
         { href: '/admin/site-tools/health',       icon: Zap,        label: 'System Health' },
         { href: '/admin/site-tools/cache',        icon: RefreshCw,  label: 'Cache Management' },
         { href: '/admin/site-tools/db',           icon: Database,   label: 'Database Cleanup' },
         { href: '/admin/site-tools/logs',         icon: FileText,   label: 'Log Viewer' },
         { href: '/admin/site-tools/security',     icon: Shield,     label: 'Security Scan' },
-        { href: '/admin/site-tools/dependencies', icon: Package,    label: 'Dependency Updates' },
+        ...(isDeveloper(user) ? [{ href: '/admin/site-tools/dependencies', icon: Package, label: 'Dependency Updates' }] : []),
         { href: '/admin/storage',                 icon: HardDrive,  label: 'Storage Cleanup' },
         { href: '/admin/site-tools/backup',       icon: Archive,    label: 'Backup & Download' },
       ] : [],

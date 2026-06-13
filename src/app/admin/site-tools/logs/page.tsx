@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
-import { canManageEmployees } from '@/lib/types';
+import { canAccessSiteTools } from '@/lib/types';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import { FileText, Trash2, Loader2, RefreshCw, Info, AlertTriangle } from 'lucide-react';
@@ -17,7 +17,7 @@ export default function LogsPage() {
 
   useEffect(() => {
     if (!user) { router.push('/login'); return; }
-    if (!canManageEmployees(user)) { router.push('/admin'); return; }
+    if (!canAccessSiteTools(user)) { router.push('/admin'); return; }
     load();
   }, [user]);
 
