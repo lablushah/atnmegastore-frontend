@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 import {
   CheckCircle, XCircle, AlertTriangle, RefreshCw, Trash2, Shield,
   Database, FileText, Package, Zap, ChevronDown, ChevronUp, Loader2,
+  HardDrive, Download, Archive, Clock,
 } from 'lucide-react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -18,6 +19,8 @@ interface HealthCheck { status: HealthStatus; label: string; detail?: string }
 interface DbStats     { expired_tokens: number; failed_jobs: number }
 interface SuspiciousFile { path: string; ext: string; size_kb: number; modified: string }
 interface ComposerPkg { name: string; version: string; latest: string; description?: string }
+interface DiskInfo    { total_gb: number; used_gb: number; free_gb: number; used_pct: number; backup_size_mb: number }
+interface BackupFile  { filename: string; size_mb: number; created_at: string; type: 'database' | 'media' | 'code' | 'other' }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -86,6 +89,15 @@ export default function SiteToolsPage() {
   const [scanning,     setScanning]     = useState(false);
   const [deletingFile, setDeletingFile] = useState<string | null>(null);
 
+  // Backup
+  const [diskInfo,        setDiskInfo]        = useState<DiskInfo | null>(null);
+  const [backups,         setBackups]         = useState<BackupFile[] | null>(null);
+  const [creatingBackup,  setCreatingBackup]  = useState<'database' | 'media' | 'code' | null>(null);
+  const [downloadingFile, setDownloadingFile] = useState<string | null>(null);
+  const [deletingBackup,  setDeletingBackup]  = useState<string | null>(null);
+  const [cleanupDays,     setCleanupDays]     = useState(7);
+  const [cleaningUp,      setCleaningUp]      = useState(false);
+
   // Composer
   const [composerPkgs,    setComposerPkgs]    = useState<ComposerPkg[] | null>(null);
   const [composerLoading, setComposerLoading] = useState(false);
@@ -103,6 +115,64 @@ export default function SiteToolsPage() {
     loadHealth();
     loadCacheStatus();
     loadDbStats();
+    loadDisk();
+    loadBackups();
+  }
+
+  async function loadDisk() {
+    try { const { data } = await api.get('/admin/backup/disk'); setDiskInfo(data); } catch {}
+  }
+
+  async function loadBackups() {
+    try { const { data } = await api.get('/admin/backup/list'); setBackups(data.backups); } catch {}
+  }
+
+  async function createBackup(type: 'database' | 'media' | 'code') {
+    setCreatingBackup(type);
+    try {
+      const { data } = await api.post(`/admin/backup/${type}`);
+      toast.success(data.message + ` (${data.size_mb} MB)`);
+      loadBackups();
+      loadDisk();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message ?? `${type} backup failed`);
+    } finally { setCreatingBackup(null); }
+  }
+
+  async function downloadBackup(filename: string) {
+    setDownloadingFile(filename);
+    try {
+      const response = await api.get(`/admin/backup/download/${encodeURIComponent(filename)}`, { responseType: 'blob' });
+      const url = URL.createObjectURL(new Blob([response.data]));
+      const a   = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      URL.revokeObjectURL(url);
+    } catch { toast.error('Download failed'); }
+    finally { setDownloadingFile(null); }
+  }
+
+  async function deleteBackup(filename: string) {
+    if (!window.confirm(`Delete ${filename}?`)) return;
+    setDeletingBackup(filename);
+    try {
+      await api.delete(`/admin/backup/${encodeURIComponent(filename)}`);
+      setBackups(bs => bs ? bs.filter(b => b.filename !== filename) : bs);
+      toast.success('Backup deleted');
+      loadDisk();
+    } catch { toast.error('Delete failed'); }
+    finally { setDeletingBackup(null); }
+  }
+
+  async function runCleanup() {
+    if (!window.confirm(`Delete all backups older than ${cleanupDays} day(s)?`)) return;
+    setCleaningUp(true);
+    try {
+      const { data } = await api.post('/admin/backup/cleanup', { days: cleanupDays });
+      toast.success(data.message);
+      loadBackups();
+      loadDisk();
+    } catch { toast.error('Cleanup failed'); }
+    finally { setCleaningUp(false); }
   }
 
   async function loadHealth() {
@@ -424,6 +494,100 @@ export default function SiteToolsPage() {
           Runs <code className="bg-gray-100 px-1">composer update</code> on the server.
           Always review changes carefully — updating may introduce breaking changes.
         </p>
+      </SectionCard>
+
+      {/* ── Backup & Restore ───────────────────────────────────────────────── */}
+      <SectionCard icon={Archive} title="Backup & Download">
+
+        {/* Disk usage bar */}
+        {diskInfo && (
+          <div className="mb-5 p-3 border border-[#cccacc] bg-gray-50">
+            <div className="flex items-center justify-between text-xs text-gray-600 mb-1.5">
+              <span className="flex items-center gap-1.5"><HardDrive className="w-3.5 h-3.5" /> Disk Usage</span>
+              <span>{diskInfo.used_gb} GB / {diskInfo.total_gb} GB used · <span className="text-amber-600">{diskInfo.backup_size_mb} MB in backups</span></span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className={`h-2 rounded-full transition-all ${diskInfo.used_pct > 85 ? 'bg-red-500' : diskInfo.used_pct > 65 ? 'bg-amber-500' : 'bg-green-500'}`}
+                style={{ width: `${Math.min(diskInfo.used_pct, 100)}%` }} />
+            </div>
+            <p className="text-[10px] text-gray-400 mt-1">{diskInfo.free_gb} GB free ({100 - diskInfo.used_pct}%)</p>
+          </div>
+        )}
+
+        {/* Create backup buttons */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+          {([
+            { type: 'database', label: 'Database',    icon: Database,  desc: 'SQL dump (.sql.gz)' },
+            { type: 'media',    label: 'Media Files', icon: Archive,   desc: 'Uploaded images (.zip)' },
+            { type: 'code',     label: 'App Code',    icon: FileText,  desc: 'Backend source (.zip)' },
+          ] as const).map(({ type, label, icon: Icon, desc }) => (
+            <button key={type} onClick={() => createBackup(type)}
+              disabled={creatingBackup !== null}
+              className="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-[#cccacc] hover:border-[#213885] hover:bg-blue-50 transition-colors disabled:opacity-50 text-center">
+              {creatingBackup === type
+                ? <Loader2 className="w-6 h-6 text-[#213885] animate-spin" />
+                : <Icon className="w-6 h-6 text-[#213885]" />}
+              <div>
+                <p className="text-sm font-semibold text-gray-800">{label}</p>
+                <p className="text-[10px] text-gray-400">{desc}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Auto-cleanup */}
+        <div className="flex flex-wrap items-center gap-2 mb-5 p-3 bg-amber-50 border border-amber-200">
+          <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+          <span className="text-xs text-amber-800 font-medium">Auto-cleanup:</span>
+          <span className="text-xs text-amber-700">Delete backups older than</span>
+          <select value={cleanupDays} onChange={e => setCleanupDays(Number(e.target.value))}
+            className="border border-amber-300 bg-white text-xs px-2 py-1 rounded focus:outline-none">
+            {[1,3,7,14,30,60,90].map(d => <option key={d} value={d}>{d} day{d > 1 ? 's' : ''}</option>)}
+          </select>
+          <Btn onClick={runCleanup} loading={cleaningUp} variant="danger">
+            <Trash2 className="w-3.5 h-3.5" /> Clean Up
+          </Btn>
+        </div>
+
+        {/* Backup history */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Backup History</p>
+            <Btn onClick={loadBackups} variant="ghost">
+              <RefreshCw className="w-3 h-3" /> Refresh
+            </Btn>
+          </div>
+          {backups === null ? (
+            <p className="text-xs text-gray-400">Loading…</p>
+          ) : backups.length === 0 ? (
+            <p className="text-xs text-gray-400 italic">No backups yet. Create one above.</p>
+          ) : (
+            <div className="border border-[#cccacc] divide-y divide-gray-100">
+              {backups.map(b => {
+                const typeColor = b.type === 'database' ? 'bg-blue-100 text-blue-700'
+                                : b.type === 'media'    ? 'bg-purple-100 text-purple-700'
+                                :                         'bg-gray-100 text-gray-600';
+                return (
+                  <div key={b.filename} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase shrink-0 ${typeColor}`}>{b.type}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-mono text-gray-800 truncate">{b.filename}</p>
+                      <p className="text-[10px] text-gray-400">{b.size_mb} MB · {new Date(b.created_at).toLocaleString('en-CA', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                    </div>
+                    <div className="flex gap-1.5 shrink-0">
+                      <Btn onClick={() => downloadBackup(b.filename)} loading={downloadingFile === b.filename} variant="ghost">
+                        <Download className="w-3.5 h-3.5" /> Download
+                      </Btn>
+                      <Btn onClick={() => deleteBackup(b.filename)} loading={deletingBackup === b.filename} variant="danger">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Btn>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </SectionCard>
 
     </div>
