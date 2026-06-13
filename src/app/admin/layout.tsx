@@ -146,6 +146,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     },
   ].filter(g => g.items.length > 0);
 
+  // Non-owner/developer employees see their groups always expanded (no toggle)
+  const alwaysOpen = !canManageEmployees(user);
+
   const NavLink = ({ href, icon: Icon, label }: NavItem) => (
     <Link
       href={href}
@@ -184,23 +187,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="border-t border-gray-100" />
         </div>
 
-        {/* Collapsible groups */}
+        {/* Nav groups — always open for non-owner employees; accordion for owner/developer */}
         {navGroups.map(group => (
           <div key={group.title}>
-            <button
-              onClick={() => toggleGroup(group.title)}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors
-                ${openGroups.has(group.title)
-                  ? 'text-[#213885] bg-blue-50'
-                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
-                }`}
-            >
-              <span>{group.title}</span>
-              <ChevronRight
-                className={`w-3.5 h-3.5 transition-transform duration-200 ${openGroups.has(group.title) ? 'rotate-90' : ''}`}
-              />
-            </button>
-            {openGroups.has(group.title) && (
+            {alwaysOpen ? (
+              <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                {group.title}
+              </p>
+            ) : (
+              <button
+                onClick={() => toggleGroup(group.title)}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors
+                  ${openGroups.has(group.title)
+                    ? 'text-[#213885] bg-blue-50'
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                  }`}
+              >
+                <span>{group.title}</span>
+                <ChevronRight
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${openGroups.has(group.title) ? 'rotate-90' : ''}`}
+                />
+              </button>
+            )}
+            {(alwaysOpen || openGroups.has(group.title)) && (
               <div className="mt-0.5 mb-1 space-y-0.5">
                 {group.items.map(item => (
                   <NavLink key={item.href} {...item} />
