@@ -465,9 +465,6 @@ function CheckoutForm() {
                     },
                   }}
                 />
-                <p className="text-xs text-gray-400 mt-2">
-                  Test card: 4242 4242 4242 4242 — any future date and CVC
-                </p>
               </div>
             )}
 

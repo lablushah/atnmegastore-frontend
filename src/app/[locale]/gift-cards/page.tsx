@@ -474,9 +474,6 @@ function GiftCardForm() {
             <CardElement options={{
               style: { base: { fontSize: '15px', color: '#1a1a1a', '::placeholder': { color: '#9ca3af' } } },
             }} />
-            <p className="text-xs text-[#9b9590] mt-2">
-              Test: 4242 4242 4242 4242 — any future date and CVC
-            </p>
           </div>
         )}
 
