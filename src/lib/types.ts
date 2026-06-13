@@ -110,7 +110,15 @@ export const EMPLOYEE_ROLE_COLORS: Record<EmployeeRole, string> = {
 // ── Permission helpers ────────────────────────────────────────────────────────
 
 export function hasRole(user: User | null, ...roles: EmployeeRole[]): boolean {
-  return !!user && user.type === 'employee' && roles.some(r => (user.roles ?? []).includes(r));
+  if (!user || user.type !== 'employee') return false;
+  // Support both new (roles array) and legacy (role string) API formats
+  const rawRole = (user as unknown as Record<string, unknown>).role as string | undefined;
+  const effectiveRoles: string[] = Array.isArray(user.roles) && user.roles.length > 0
+    ? user.roles
+    : rawRole === 'admin'
+      ? ['owner']           // old 'admin' maps to new 'owner'
+      : rawRole ? [rawRole] : [];
+  return roles.some(r => effectiveRoles.includes(r));
 }
 
 export function isEmployee(user: User | null): boolean {
