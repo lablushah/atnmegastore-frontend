@@ -12,7 +12,7 @@ import {
   LayoutDashboard, ShoppingBag, Tag, Package, Users,
   UserCircle, Mail, Newspaper, ChevronRight, Menu,
   LogOut, Image, FileText, Megaphone, Ticket, Truck, Settings, ShieldAlert,
-  Store, ExternalLink, CreditCard, Share2, ClipboardList, Gift, CalendarDays, BookOpen, Hash, HardDrive, HelpCircle,
+  Store, ExternalLink, CreditCard, Share2, ClipboardList, Gift, CalendarDays, BookOpen, Hash, HardDrive, HelpCircle, Wrench,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
