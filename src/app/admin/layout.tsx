@@ -13,6 +13,7 @@ import {
   UserCircle, Mail, Newspaper, ChevronRight, Menu,
   LogOut, Image, FileText, Megaphone, Ticket, Truck, Settings, ShieldAlert,
   Store, ExternalLink, CreditCard, Share2, ClipboardList, Gift, CalendarDays, BookOpen, Hash, HardDrive, HelpCircle, Wrench,
+  Zap, RefreshCw, Database, Shield, Archive,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -43,7 +44,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       Content:        ['/admin/slides', '/admin/pages', '/admin/popups', '/admin/events', '/admin/blog', '/admin/tags'],
       Sales:          ['/admin/orders', '/admin/customers', '/admin/discount-codes', '/admin/shipping', '/admin/gift-cards'],
       Marketing:      ['/admin/campaigns', '/admin/newsletter-subscribers', '/admin/social-posts'],
-      Administration: ['/admin/employees', '/admin/settings', '/admin/payment-settings', '/admin/storage'],
+      Administration: ['/admin/employees', '/admin/settings', '/admin/payment-settings'],
+      'Site Tools':   ['/admin/site-tools', '/admin/storage'],
     };
     const active = Object.keys(groupPaths).find(g => groupPaths[g].some(p => pathname.startsWith(p)));
     if (active) setOpenGroups(new Set([active]));
@@ -124,8 +126,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         canManageEmployees(user) && { href: '/admin/employees',        icon: Users,      label: 'Employees' },
         canManageEmployees(user) && { href: '/admin/settings',         icon: Settings,   label: 'Site Settings' },
         canManageEmployees(user) && { href: '/admin/payment-settings', icon: CreditCard, label: 'Payment Methods' },
-        canManageEmployees(user) && { href: '/admin/site-tools',       icon: Wrench,     label: 'Site Tools' },
       ].filter(Boolean) as NavItem[],
+    },
+    {
+      title: 'Site Tools',
+      items: canManageEmployees(user) ? [
+        { href: '/admin/site-tools/health',       icon: Zap,        label: 'System Health' },
+        { href: '/admin/site-tools/cache',        icon: RefreshCw,  label: 'Cache Management' },
+        { href: '/admin/site-tools/db',           icon: Database,   label: 'Database Cleanup' },
+        { href: '/admin/site-tools/logs',         icon: FileText,   label: 'Log Viewer' },
+        { href: '/admin/site-tools/security',     icon: Shield,     label: 'Security Scan' },
+        { href: '/admin/site-tools/dependencies', icon: Package,    label: 'Dependency Updates' },
+        { href: '/admin/storage',                 icon: HardDrive,  label: 'Storage Cleanup' },
+        { href: '/admin/site-tools/backup',       icon: Archive,    label: 'Backup & Download' },
+      ] : [],
     },
   ].filter(g => g.items.length > 0);
 
