@@ -5,6 +5,7 @@ import { Link } from '@/navigation';
 import { useTranslations } from 'next-intl';
 import { Eye, EyeOff, MailCheck, RefreshCw } from 'lucide-react';
 import Logo from '@/components/Logo';
+import SocialAuthButtons from '@/components/SocialAuthButtons';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -146,7 +147,9 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-[#cccacc] text-center text-sm text-[#6b6b6b]">
+          <SocialAuthButtons />
+
+          <div className="mt-5 pt-5 border-t border-[#cccacc] text-center text-sm text-[#6b6b6b]">
             {t('have_account')}{' '}
             <Link href="/login" className="text-[#213885] font-semibold hover:underline">
               {t('sign_in_link')}

@@ -478,6 +478,33 @@ const ARTICLES: Article[] = [
     ),
   },
   {
+    id: 'social-login-customers',
+    category: 'settings',
+    title: 'How customers sign in with Google or Facebook',
+    keywords: ['google', 'facebook', 'social login', 'oauth', 'sign in', 'register', 'customer account'],
+    body: (
+      <div>
+        <p className="text-sm text-gray-600 mb-4">Customers can register and sign in using their Google or Facebook account — no password required on their end.</p>
+        <H text="How it works for customers" />
+        <Step n={1} text='Customer clicks "Continue with Google" or "Continue with Facebook" on the Login or Register page.' />
+        <Step n={2} text="They are sent to Google/Facebook to grant permission. ATN Megastore only reads their name and email." />
+        <Step n={3} text="They are automatically returned to the store and signed in. If no account existed, one is created for them." />
+        <Note text="If the customer already has an ATN Megastore account with the same email, their social account is linked to it. They can then use either method to sign in." />
+        <H text="What you see in the Customers panel" />
+        <p className="text-sm text-gray-700 mb-3">Social-login customers appear in <strong>Sales → Customers</strong> exactly like any other customer. Their email is verified automatically by Google/Facebook, so no manual verification step is needed.</p>
+        <H text="To enable Google sign-in (setup required)" />
+        <Step n={1} text="Go to console.cloud.google.com → Create a project → APIs & Services → Credentials." />
+        <Step n={2} text='Create an OAuth 2.0 Client ID (Web application type). Add the backend callback URL as an Authorized Redirect URI.' />
+        <Step n={3} text="Copy the Client ID and Client Secret into the backend .env file: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET." />
+        <H text="To enable Facebook sign-in (setup required)" />
+        <Step n={1} text="Go to developers.facebook.com → Create App → Consumer type." />
+        <Step n={2} text="Add Facebook Login product → set Valid OAuth Redirect URI to the backend callback URL." />
+        <Step n={3} text="Copy the App ID and App Secret into the backend .env file: FACEBOOK_CLIENT_ID and FACEBOOK_CLIENT_SECRET." />
+        <Tip text="Social login is optional. Customers who prefer email/password can still register and sign in the traditional way." />
+      </div>
+    ),
+  },
+  {
     id: 'site-settings',
     category: 'settings',
     title: 'Configuring general site settings',
