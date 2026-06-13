@@ -6,10 +6,11 @@ import { useAuthStore } from '@/store/authStore';
 import { canManageEmployees } from '@/lib/types';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
+import Link from 'next/link';
 import {
   CheckCircle, XCircle, AlertTriangle, RefreshCw, Trash2, Shield,
   Database, FileText, Package, Zap, ChevronDown, ChevronUp, Loader2,
-  HardDrive, Download, Archive, Clock,
+  HardDrive, Download, Archive, Clock, ArrowRight,
 } from 'lucide-react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -494,6 +495,17 @@ export default function SiteToolsPage() {
           Runs <code className="bg-gray-100 px-1">composer update</code> on the server.
           Always review changes carefully — updating may introduce breaking changes.
         </p>
+      </SectionCard>
+
+      {/* ── Storage Cleanup ───────────────────────────────────────────────── */}
+      <SectionCard icon={HardDrive} title="Storage Cleanup">
+        <p className="text-sm text-gray-600 mb-4">
+          Scan for image files on disk that are no longer linked to any product — then selectively delete them to reclaim space.
+        </p>
+        <Link href="/admin/storage"
+          className="inline-flex items-center gap-2 bg-[#213885] hover:bg-[#1a2d6b] text-white text-xs font-semibold px-4 py-2 transition-colors">
+          <HardDrive className="w-3.5 h-3.5" /> Open Storage Cleanup <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </SectionCard>
 
       {/* ── Backup & Restore ───────────────────────────────────────────────── */}

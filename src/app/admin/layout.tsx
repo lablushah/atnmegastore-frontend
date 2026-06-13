@@ -124,7 +124,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         canManageEmployees(user) && { href: '/admin/employees',        icon: Users,      label: 'Employees' },
         canManageEmployees(user) && { href: '/admin/settings',         icon: Settings,   label: 'Site Settings' },
         canManageEmployees(user) && { href: '/admin/payment-settings', icon: CreditCard, label: 'Payment Methods' },
-        canManageProducts(user)  && { href: '/admin/storage',          icon: HardDrive,  label: 'Storage Cleanup' },
         canManageEmployees(user) && { href: '/admin/site-tools',       icon: Wrench,     label: 'Site Tools' },
       ].filter(Boolean) as NavItem[],
     },
