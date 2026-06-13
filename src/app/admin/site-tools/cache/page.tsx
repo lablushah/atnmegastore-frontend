@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { canManageEmployees } from '@/lib/types';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
-import { RefreshCw, Trash2, Loader2 } from 'lucide-react';
+import { RefreshCw, Trash2, Loader2, Info, AlertTriangle } from 'lucide-react';
 
 export default function CachePage() {
   const { user } = useAuthStore();
@@ -38,10 +38,32 @@ export default function CachePage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-[#1a1a1a] mb-1" style={{ fontFamily: 'var(--font-playfair,Georgia,serif)' }}>Cache Management</h1>
-      <p className="text-sm text-gray-500 mb-8">Clear or rebuild Laravel application caches</p>
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
 
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-[#1a1a1a]" style={{ fontFamily: 'var(--font-playfair,Georgia,serif)' }}>Cache Management</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Speed up your store or clear stale data after making changes</p>
+      </div>
+
+      {/* What is cache */}
+      <div className="flex gap-3 bg-blue-50 border border-blue-200 px-4 py-3">
+        <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+        <div className="text-sm text-blue-800 space-y-1">
+          <p><strong>What is cache?</strong> Your store saves a temporary copy of settings, menus, and other data so it does not have to re-calculate them on every page load. This makes the store faster for visitors.</p>
+          <p>Sometimes, after you make changes (update settings, add products, change prices), the store keeps showing the old cached version. Clearing the cache forces the store to re-read the latest data.</p>
+        </div>
+      </div>
+
+      {/* Safe to use */}
+      <div className="flex gap-3 bg-green-50 border border-green-200 px-4 py-3">
+        <AlertTriangle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+        <p className="text-sm text-green-800">
+          <strong>Safe to use anytime.</strong> Clearing the cache does not delete any products, orders, or customer data. It only removes temporary speed files. The store will rebuild them automatically as visitors browse.
+        </p>
+      </div>
+
+      {/* Actions */}
       <div className="bg-white border border-[#cccacc] p-6 space-y-6">
         <div className="flex flex-wrap gap-3">
           <button onClick={clearCache} disabled={clearing || rebuilding}
@@ -62,10 +84,28 @@ export default function CachePage() {
           </p>
         )}
 
-        <div className="border-t border-gray-100 pt-4 space-y-2 text-sm text-gray-600">
-          <p><strong>Clear All Cache</strong> — removes app cache, config cache, route cache, and compiled views.</p>
-          <p><strong>Rebuild Cache</strong> — re-generates config and route caches for production performance. Run this after deploying changes.</p>
+        {/* Explanation of each button */}
+        <div className="border-t border-gray-100 pt-5 space-y-4">
+          <div>
+            <p className="text-sm font-semibold text-gray-800 mb-1">Clear All Cache</p>
+            <p className="text-sm text-gray-600">Removes all temporary files. The store will run a little slower for the next few minutes while it rebuilds them, but this is normal and temporary. <strong>Use this when changes you made are not showing up on the store.</strong></p>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-800 mb-1">Rebuild Cache</p>
+            <p className="text-sm text-gray-600">Re-generates the speed files immediately. Run this after clearing, or after any technical updates are deployed to the server. It makes the store fast right away instead of waiting for the first visitor to trigger it.</p>
+          </div>
         </div>
+      </div>
+
+      {/* When to use */}
+      <div className="bg-gray-50 border border-gray-200 px-4 py-4 space-y-1.5">
+        <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">When should I clear the cache?</p>
+        <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
+          <li>A price or product description you updated is not showing the new value</li>
+          <li>A setting (like store name or logo) was changed but the old one still appears</li>
+          <li>After a developer deploys code changes to the server</li>
+          <li>If the store feels slow or unresponsive</li>
+        </ul>
       </div>
     </div>
   );
