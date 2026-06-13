@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import {
   Search, ChevronDown, ChevronUp,
-  Share2, Mail, ShoppingBag, Package, Settings, BookOpen,
+  Share2, Mail, ShoppingBag, Package, Settings, BookOpen, ClipboardList,
 } from 'lucide-react';
 
 type Article = {
@@ -20,6 +20,7 @@ const CATEGORIES = [
   { key: 'email',        label: 'Email & Campaigns' },
   { key: 'products',     label: 'Products' },
   { key: 'orders',       label: 'Orders & Sales' },
+  { key: 'tasks',        label: 'Task Board' },
   { key: 'settings',     label: 'Settings' },
 ];
 
@@ -28,6 +29,7 @@ const CAT_ICONS: Record<string, React.ElementType> = {
   email:    Mail,
   products: ShoppingBag,
   orders:   Package,
+  tasks:    ClipboardList,
   settings: Settings,
 };
 
@@ -422,6 +424,56 @@ const ARTICLES: Article[] = [
         <H text="Two-factor authentication (2FA)" />
         <p className="text-sm text-gray-700">2FA is mandatory for all employee accounts. On first login, they are redirected to set up an authenticator app (Google Authenticator, Microsoft Authenticator, etc.) before they can access the dashboard.</p>
         <Tip text="Assign only the roles an employee needs. A staff member who manages both products and orders should have both Product Manager and Sales roles." />
+      </div>
+    ),
+  },
+  {
+    id: 'task-board-overview',
+    category: 'tasks',
+    title: 'Using the Task Board',
+    keywords: ['task', 'board', 'to-do', 'assign', 'priority', 'status', 'due date', 'team'],
+    body: (
+      <div>
+        <p className="text-sm text-gray-600 mb-4">The Task Board at <strong>Admin → Tasks</strong> is an internal to-do system for your team. Every staff member can create, assign, and track tasks.</p>
+        <H text="Creating a task" />
+        <Step n={1} text='Click + New Task at the top right of the page.' />
+        <Step n={2} text='Enter a title and optional description.' />
+        <Step n={3} text='Set the priority: Low, Medium, High, or Urgent.' />
+        <Step n={4} text='Optionally set a due date.' />
+        <Step n={5} text='Use the Assignee field to pick one or more team members to assign the task to.' />
+        <Step n={6} text='Click Create Task. It appears in the list immediately.' />
+        <H text="Updating task status" />
+        <p className="text-sm text-gray-700 mb-2">Click the circle icon on the left of any task row to cycle it through: <strong>Open → In Progress → Done → Open</strong>.</p>
+        <H text="Priority levels" />
+        <div className="text-sm text-gray-700 space-y-1 mb-3">
+          <p><strong>⚪ Low</strong> — Nice to have, complete when time allows.</p>
+          <p><strong>🔵 Medium</strong> — Standard priority, complete within the week.</p>
+          <p><strong>🟠 High</strong> — Important, complete within 1–2 days.</p>
+          <p><strong>🔴 Urgent</strong> — Critical, must be done today.</p>
+        </div>
+        <Tip text="The Dashboard shows your top 6 open tasks so you can act on priorities without opening the full board." />
+      </div>
+    ),
+  },
+  {
+    id: 'task-visibility',
+    category: 'tasks',
+    title: 'Task visibility — what each person sees',
+    keywords: ['task', 'visibility', 'assigned', 'my tasks', 'see', 'filter', 'backlog'],
+    body: (
+      <div>
+        <p className="text-sm text-gray-600 mb-4">The task board shows only the tasks relevant to you — it is not a shared list of every task in the system.</p>
+        <H text="You see a task if" />
+        <div className="text-sm text-gray-700 space-y-1 mb-3">
+          <p>✔ <strong>You created it</strong> — tasks you opened yourself always appear in your board.</p>
+          <p>✔ <strong>You are assigned to it</strong> — if someone added your name as an assignee, you will see it.</p>
+          <p>✔ <strong>It is unassigned (backlog)</strong> — tasks with no assignees are visible to everyone so any team member can pick them up.</p>
+        </div>
+        <H text="You do not see" />
+        <p className="text-sm text-gray-700 mb-3">Tasks assigned only to other team members that you did not create will not appear in your view.</p>
+        <H text="Multi-assignee tasks" />
+        <p className="text-sm text-gray-700 mb-3">A single task can be assigned to more than one person. Each assignee will see the task in their own board and can update its status independently.</p>
+        <Note text="Deleting a task is only allowed if you created it. Store Owners can delete any task." />
       </div>
     ),
   },
