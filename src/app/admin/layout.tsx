@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Logo from '@/components/Logo';
+import { useTheme } from '@/hooks/useTheme';
 import { useAuthStore } from '@/store/authStore';
 import {
   canManageProducts, canManageOrders, canManageEmployees,
@@ -14,7 +15,7 @@ import {
   UserCircle, Mail, Newspaper, ChevronRight, Menu,
   LogOut, Image, FileText, Megaphone, Ticket, Truck, Settings, ShieldAlert,
   Store, ExternalLink, CreditCard, Share2, ClipboardList, Gift, CalendarDays, BookOpen, Hash, HardDrive, HelpCircle, Wrench,
-  Zap, RefreshCw, Database, Shield, Archive,
+  Zap, RefreshCw, Database, Shield, Archive, Sun, Moon,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -23,6 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, logout, _hasHydrated }  = useAuthStore();
   const [open, setOpen]                 = useState(false);
   const [openGroups, setOpenGroups]     = useState<Set<string>>(new Set());
+  const { isDark, toggle }              = useTheme();
 
   const handleLogout = () => { logout(); window.location.href = '/'; };
 
@@ -58,7 +60,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (user.type === 'employee' && user.two_factor_setup_required) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className={`admin-root${isDark ? ' dark' : ''} min-h-screen flex items-center justify-center bg-gray-50`}>
         <div className="text-center p-8 bg-white border border-[#cccacc] max-w-sm">
           <ShieldAlert className="w-12 h-12 text-amber-500 mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-[#1a1a1a] mb-2">2FA Setup Required</h2>
@@ -225,7 +227,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`admin-root${isDark ? ' dark' : ''} min-h-screen bg-gray-50`}>
 
       {/* ── Top bar — full width, always visible ───────────────────────── */}
       <header className="fixed top-0 inset-x-0 h-14 bg-white border-b border-gray-200 z-40 flex items-center px-4 gap-3">
@@ -277,6 +279,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <span className="hidden sm:inline">Help</span>
         </Link>
 
+        {/* Dark mode toggle */}
+        <button
+          onClick={toggle}
+          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          className={`flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
+            isDark
+              ? 'text-gray-400 hover:text-yellow-400 hover:bg-[#1c2032]'
+              : 'text-gray-500 hover:text-[#213885] hover:bg-gray-50'
+          }`}
+        >
+          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </button>
+
         {/* Divider */}
         <div className="hidden sm:block w-px h-6 bg-gray-200" />
 
@@ -315,7 +330,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* ── Main content — offset for top bar + sidebar ─────────────────── */}
       <div className="pt-14 md:ml-56 min-w-0">
-        <main className="min-h-[calc(100vh-3.5rem)]">
+        <main className="admin-main min-h-[calc(100vh-3.5rem)]">
           {children}
         </main>
       </div>
