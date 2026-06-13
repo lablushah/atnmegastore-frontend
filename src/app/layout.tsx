@@ -5,6 +5,7 @@ import './globals.css';
 import { Toaster } from 'react-hot-toast';
 import { getSettings } from '@/lib/settings';
 import TopProgressBar from '@/components/ui/TopProgressBar';
+import { Analytics } from '@vercel/analytics/next';
 
 const inter    = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
@@ -78,6 +79,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           }}
         />
         {children}
+        <Analytics />
       </body>
     </html>
   );
