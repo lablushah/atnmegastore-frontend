@@ -83,8 +83,8 @@ function CheckoutForm() {
     setCouponApplying(true);
     try {
       const { data } = await api.post('/discount/validate', {
-        code: couponInput.trim(),
-        order_total: total(),
+        code:     couponInput.trim(),
+        subtotal: total(),
       });
       setCoupon({
         code:           data.code,
