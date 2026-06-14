@@ -1,14 +1,23 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { Link } from '@/navigation';
-import { CheckCircle, Package } from 'lucide-react';
+import { CheckCircle, Package, UserPlus } from 'lucide-react';
 import PageLoader from '@/components/ui/PageLoader';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
+import toast from 'react-hot-toast';
 
-interface Order { id: number; status: string; total: string; created_at: string; guest_name?: string; guest_email?: string; items: { id: number; quantity: number; price: string; product: { name: string; image?: string } | null }[]; }
+interface Order {
+  id: number;
+  status: string;
+  total: string;
+  created_at: string;
+  guest_name?: string;
+  guest_email?: string;
+  items: { id: number; quantity: number; price: string; product: { name: string; image?: string } | null }[];
+}
 
 export default function OrderConfirmationPage() {
   const { id } = useParams<{ id: string }>();
@@ -17,8 +26,14 @@ export default function OrderConfirmationPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Registration form state
+  const [password, setPassword]       = useState('');
+  const [passConfirm, setPassConfirm] = useState('');
+  const [registering, setRegistering] = useState(false);
+  const [registered, setRegistered]   = useState(false);
+
   useEffect(() => {
-    const email = searchParams.get('email');
+    const token = searchParams.get('token');
 
     const load = async () => {
       try {
@@ -26,10 +41,10 @@ export default function OrderConfirmationPage() {
         const { data } = await api.get(`/orders/${id}`);
         setOrder(data);
       } catch {
-        // Guest users — fall back to public lookup using email from URL
-        if (email) {
+        // Guest users — fall back to public lookup using secure token
+        if (token) {
           try {
-            const { data } = await api.post('/orders/lookup', { order_id: Number(id), email });
+            const { data } = await api.post('/orders/lookup', { order_id: Number(id), token });
             setOrder(data);
           } catch {}
         }
@@ -41,8 +56,38 @@ export default function OrderConfirmationPage() {
     load();
   }, [id, searchParams]);
 
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = searchParams.get('token');
+    if (!token || !order) return;
+
+    setRegistering(true);
+    try {
+      await api.post('/orders/register-from-guest', {
+        order_id: Number(id),
+        token,
+        password,
+        password_confirmation: passConfirm,
+      });
+      setRegistered(true);
+      toast.success('Account created! Check your email to verify.');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || 'Registration failed. Please try again.';
+      toast.error(msg);
+    } finally {
+      setRegistering(false);
+    }
+  };
+
   if (loading) return <PageLoader />;
-  if (!order) return <div className="min-h-[60vh] flex items-center justify-center"><p className="text-gray-500">Order not found.</p></div>;
+  if (!order) return (
+    <div className="min-h-[60vh] flex items-center justify-center">
+      <p className="text-gray-500">Order not found.</p>
+    </div>
+  );
+
+  const isGuest = !user && !!order.guest_email;
+  const token   = searchParams.get('token');
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-16">
@@ -73,6 +118,58 @@ export default function OrderConfirmationPage() {
         </div>
       </div>
 
+      {/* Guest registration prompt */}
+      {isGuest && token && !registered && (
+        <div className="bg-[#f9f7ff] border border-[#d4c9f5] p-6 mb-6">
+          <div className="flex items-center gap-2 mb-1">
+            <UserPlus className="w-5 h-5 text-[#213885]" />
+            <h3 className="font-semibold text-[#1a1a1a]">Save time on your next order</h3>
+          </div>
+          <p className="text-sm text-[#6b6b6b] mb-4">
+            Create a free account with <span className="font-medium text-[#1a1a1a]">{order.guest_email}</span> and your order history, address, and details will be saved for faster checkout.
+          </p>
+          <form onSubmit={handleRegister} className="space-y-3">
+            <div>
+              <label className="block text-xs font-medium text-[#1a1a1a] mb-1">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                minLength={8}
+                placeholder="Min. 8 chars, 1 uppercase, 1 number, 1 symbol"
+                className="w-full border border-[#cccacc] px-3 py-2 text-sm focus:outline-none focus:border-[#213885]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-[#1a1a1a] mb-1">Confirm Password</label>
+              <input
+                type="password"
+                value={passConfirm}
+                onChange={e => setPassConfirm(e.target.value)}
+                required
+                placeholder="Repeat password"
+                className="w-full border border-[#cccacc] px-3 py-2 text-sm focus:outline-none focus:border-[#213885]"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={registering}
+              className="w-full bg-[#213885] hover:bg-[#081849] text-white py-2 text-sm font-medium transition-colors disabled:opacity-60"
+            >
+              {registering ? 'Creating account…' : 'Create Account'}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {isGuest && registered && (
+        <div className="bg-green-50 border border-green-200 p-4 mb-6 text-center">
+          <p className="text-sm text-green-800 font-medium">Account created!</p>
+          <p className="text-xs text-green-700 mt-1">Check your email at <span className="font-medium">{order.guest_email}</span> to verify your account.</p>
+        </div>
+      )}
+
       <div className="flex gap-4 justify-center flex-wrap">
         <Link href="/" className="border border-[#cccacc] px-6 py-2 text-sm text-[#1a1a1a] hover:bg-gray-50 transition-colors">
           Continue Shopping
@@ -83,7 +180,7 @@ export default function OrderConfirmationPage() {
           </Link>
         ) : (
           <p className="text-xs text-[#6b6b6b] text-center w-full mt-1">
-            A confirmation email has been sent with a link to view this order.
+            A confirmation email has been sent to your inbox.
           </p>
         )}
       </div>

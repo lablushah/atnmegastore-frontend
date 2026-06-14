@@ -221,12 +221,14 @@ function CheckoutForm() {
 
       const orderEmail = user?.email || guest.email;
 
+      const tokenSuffix = data.guest_access_token ? `&token=${data.guest_access_token}` : '';
+
       // Fully covered by gift card — no Stripe needed
       if (data.total === 0 || grandTotal() === 0) {
         markCartRecovered(orderEmail);
         clearCart();
         toast.success('Order placed! Gift card applied.');
-        router.push(`/order-confirmation/${data.order_id}?method=gift_card`);
+        router.push(`/order-confirmation/${data.order_id}?method=gift_card${tokenSuffix}`);
         return;
       }
 
@@ -251,7 +253,7 @@ function CheckoutForm() {
           markCartRecovered(orderEmail);
           clearCart();
           toast.success('Payment successful! Order placed.');
-          router.push(`/order-confirmation/${data.order_id}?method=stripe`);
+          router.push(`/order-confirmation/${data.order_id}?method=stripe${tokenSuffix}`);
         }
         return;
       }
@@ -259,7 +261,7 @@ function CheckoutForm() {
       // Non-Stripe: order placed, show confirmation
       markCartRecovered(orderEmail);
       clearCart();
-      router.push(`/order-confirmation/${data.order_id}?method=${paymentMethod}&email=${encodeURIComponent(guest.email || user?.email || '')}`);
+      router.push(`/order-confirmation/${data.order_id}?method=${paymentMethod}${tokenSuffix}`);
     } catch (err: any) {
       const msg = err?.response?.data?.message || 'Checkout failed. Please try again.';
       toast.error(msg);
