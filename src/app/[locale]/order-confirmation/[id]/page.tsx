@@ -1,21 +1,24 @@
 ﻿'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { Link } from '@/navigation';
 import { CheckCircle, Package } from 'lucide-react';
 import PageLoader from '@/components/ui/PageLoader';
+import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 
 interface Order { id: number; status: string; total: string; created_at: string; guest_name?: string; guest_email?: string; items: { id: number; quantity: number; price: string; product: { name: string; image?: string } | null }[]; }
 
 export default function OrderConfirmationPage() {
   const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const { user } = useAuthStore();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const email = new URLSearchParams(window.location.search).get('email');
+    const email = searchParams.get('email');
 
     const load = async () => {
       try {
@@ -36,7 +39,7 @@ export default function OrderConfirmationPage() {
     };
 
     load();
-  }, [id]);
+  }, [id, searchParams]);
 
   if (loading) return <PageLoader />;
   if (!order) return <div className="min-h-[60vh] flex items-center justify-center"><p className="text-gray-500">Order not found.</p></div>;
@@ -70,9 +73,19 @@ export default function OrderConfirmationPage() {
         </div>
       </div>
 
-      <div className="flex gap-4 justify-center">
-        <Link href="/" className="border border-[#cccacc] px-6 py-2 text-sm text-[#1a1a1a] hover:bg-gray-50 transition-colors">Continue Shopping</Link>
-        <Link href="/orders" className="bg-[#213885] hover:bg-[#081849] text-white px-6 py-2 text-sm font-medium transition-colors">View My Orders</Link>
+      <div className="flex gap-4 justify-center flex-wrap">
+        <Link href="/" className="border border-[#cccacc] px-6 py-2 text-sm text-[#1a1a1a] hover:bg-gray-50 transition-colors">
+          Continue Shopping
+        </Link>
+        {user ? (
+          <Link href="/orders" className="bg-[#213885] hover:bg-[#081849] text-white px-6 py-2 text-sm font-medium transition-colors">
+            View My Orders
+          </Link>
+        ) : (
+          <p className="text-xs text-[#6b6b6b] text-center w-full mt-1">
+            A confirmation email has been sent with a link to view this order.
+          </p>
+        )}
       </div>
     </div>
   );
