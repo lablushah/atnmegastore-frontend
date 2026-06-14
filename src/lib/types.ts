@@ -53,6 +53,7 @@ export interface Order {
   guest_phone: string | null;
   status: 'awaiting_payment' | 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
   payment_method: 'stripe' | 'interac_etransfer' | 'pay_at_store';
+  delivery_method: 'pickup' | 'delivery';
   total: string;
   stripe_payment_intent_id: string | null;
   notes: string | null;

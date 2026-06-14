@@ -8,7 +8,17 @@ import PageLoader from '@/components/ui/PageLoader';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 
-interface Order { id: number; status: string; total: string; notes: string | null; created_at: string; items: { id: number; quantity: number; price: string; product: { name: string; image?: string } | null }[]; }
+interface Order { id: number; status: string; delivery_method: string; total: string; notes: string | null; created_at: string; items: { id: number; quantity: number; price: string; product: { name: string; image?: string } | null }[]; }
+
+function orderStatusLabel(status: string, deliveryMethod: string): string {
+  if (status === 'delivered' && deliveryMethod === 'pickup') return 'Picked Up';
+  if (status === 'shipped' && deliveryMethod === 'pickup') return 'Ready for Pickup';
+  const labels: Record<string, string> = {
+    awaiting_payment: 'Awaiting Payment', pending: 'Pending', paid: 'Paid',
+    shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled',
+  };
+  return labels[status] ?? status.replace(/_/g, ' ');
+}
 
 const STATUS_COLORS: Record<string, string> = {
   awaiting_payment: 'bg-yellow-50 text-yellow-700', pending: 'bg-orange-50 text-orange-700',
@@ -40,7 +50,7 @@ export default function OrderDetailPage() {
 
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-[#1a1a1a]" style={{ fontFamily: 'var(--font-playfair, Georgia, serif)' }}>Order #{order.id}</h1>
-        <span className={`text-xs px-3 py-1 ${STATUS_COLORS[order.status] ?? 'bg-gray-100 text-gray-600'}`}>{order.status.replace('_', ' ')}</span>
+        <span className={`text-xs px-3 py-1 ${STATUS_COLORS[order.status] ?? 'bg-gray-100 text-gray-600'}`}>{orderStatusLabel(order.status, order.delivery_method)}</span>
       </div>
 
       <div className="bg-white border border-[#cccacc] p-6 mb-4">

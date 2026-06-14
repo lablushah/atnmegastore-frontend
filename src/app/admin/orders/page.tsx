@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { canManageOrders } from '@/lib/types';
 import api from '@/lib/api';
-import { Search, ChevronDown, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Spinner from '@/components/ui/Spinner';
 
@@ -13,6 +13,7 @@ interface OrderItem { id: number; product: { name: string } | null; quantity: nu
 interface Order {
   id: number; status: string; total: string; notes: string | null;
   guest_name: string | null; guest_email: string | null;
+  delivery_method: string;
   user: { name: string; email: string } | null;
   items: OrderItem[]; created_at: string;
 }
@@ -26,7 +27,22 @@ const STATUS_COLORS: Record<string, string> = {
   delivered: 'bg-green-50 text-green-700',
   cancelled: 'bg-red-50 text-red-700',
 };
-const STATUSES = ['awaiting_payment', 'pending', 'paid', 'shipped', 'delivered', 'cancelled'];
+const ALL_STATUSES = ['awaiting_payment', 'pending', 'paid', 'shipped', 'delivered', 'cancelled'];
+
+function getStatusLabel(status: string, deliveryMethod?: string): string {
+  if (status === 'delivered' && deliveryMethod === 'pickup') return 'Customer Picked Up';
+  const labels: Record<string, string> = {
+    awaiting_payment: 'Awaiting Payment', pending: 'Pending', paid: 'Paid',
+    shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled',
+  };
+  return labels[status] ?? status.replace(/_/g, ' ');
+}
+
+function availableStatuses(deliveryMethod: string): string[] {
+  return deliveryMethod === 'pickup'
+    ? ALL_STATUSES.filter(s => s !== 'shipped')
+    : ALL_STATUSES;
+}
 
 export default function AdminOrdersPage() {
   const { user } = useAuthStore();
@@ -64,7 +80,7 @@ export default function AdminOrdersPage() {
     finally { setLoading(false); }
   }
 
-  async function handleUpdateStatus(e: React.FormEvent) {
+  async function handleUpdateStatus(e: { preventDefault(): void }) {
     e.preventDefault(); if (!selected) return; setUpdating(true);
     try {
       await api.put(`/admin/orders/${selected.id}`, { status: newStatus, notes });
@@ -87,7 +103,7 @@ export default function AdminOrdersPage() {
         <input value={search} onChange={e => setSearch(e.target.value)} onKeyDown={e => e.key === 'Enter' && load(1, search)} placeholder="Search by name or email…" className="flex-1 border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#213885]" />
         <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); load(1, search, e.target.value); }} className="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#213885]">
           <option value="">All Statuses</option>
-          {STATUSES.map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
+          {ALL_STATUSES.map(s => <option key={s} value={s}>{getStatusLabel(s)}</option>)}
         </select>
         <button onClick={() => load(1, search)} className="bg-gray-100 hover:bg-gray-200 px-4 py-2 text-sm flex items-center gap-1"><Search className="w-4 h-4" /></button>
       </div>
@@ -117,7 +133,7 @@ export default function AdminOrdersPage() {
                       <td className="py-3 px-4 border-b border-gray-50 text-[#6b6b6b]">{o.items?.length ?? 0} item(s)</td>
                       <td className="py-3 px-4 border-b border-gray-50 font-medium">${parseFloat(o.total).toFixed(2)}</td>
                       <td className="py-3 px-4 border-b border-gray-50">
-                        <span className={`text-xs px-2 py-0.5 ${STATUS_COLORS[o.status] ?? 'bg-gray-100 text-gray-600'}`}>{o.status.replace('_', ' ')}</span>
+                        <span className={`text-xs px-2 py-0.5 ${STATUS_COLORS[o.status] ?? 'bg-gray-100 text-gray-600'}`}>{getStatusLabel(o.status, o.delivery_method)}</span>
                       </td>
                       <td className="py-3 px-4 border-b border-gray-50 text-[#6b6b6b] text-xs">{new Date(o.created_at).toLocaleDateString()}</td>
                       <td className="py-3 px-4 border-b border-gray-50">
@@ -151,6 +167,7 @@ export default function AdminOrdersPage() {
                 <p><span className="text-[#6b6b6b]">Customer:</span> {selected.user?.name ?? selected.guest_name ?? 'Guest'}</p>
                 <p><span className="text-[#6b6b6b]">Email:</span> {selected.user?.email ?? selected.guest_email ?? '—'}</p>
                 <p><span className="text-[#6b6b6b]">Total:</span> ${parseFloat(selected.total).toFixed(2)}</p>
+                <p><span className="text-[#6b6b6b]">Fulfillment:</span> {selected.delivery_method === 'pickup' ? 'Store Pickup' : 'Delivery'}</p>
               </div>
               <div>
                 <p className="text-xs font-medium text-gray-600 mb-2">Items</p>
@@ -165,7 +182,9 @@ export default function AdminOrdersPage() {
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Update Status</label>
                   <select value={newStatus} onChange={e => setNewStatus(e.target.value)} className="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#213885]">
-                    {STATUSES.map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
+                    {availableStatuses(selected.delivery_method).map(s => (
+                      <option key={s} value={s}>{getStatusLabel(s, selected.delivery_method)}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
