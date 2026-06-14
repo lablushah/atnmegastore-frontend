@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { Link } from '@/navigation';
-import { CheckCircle, Package, UserPlus, LogIn } from 'lucide-react';
+import { CheckCircle, Package, UserPlus, LogIn, Clock, CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
 import PageLoader from '@/components/ui/PageLoader';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
@@ -12,12 +12,89 @@ import toast from 'react-hot-toast';
 interface Order {
   id: number;
   status: string;
+  payment_method: string;
+  delivery_method: string;
   total: string;
   created_at: string;
   guest_name?: string;
   guest_email?: string;
   email_has_account?: boolean;
   items: { id: number; quantity: number; price: string; product: { name: string; image?: string } | null }[];
+}
+
+function PaymentStatusBlock({ status, paymentMethod, orderId }: { status: string; paymentMethod: string; orderId: number }) {
+  const paddedId = String(orderId).padStart(6, '0');
+
+  if (status === 'paid') {
+    return (
+      <div className="flex items-center gap-3 bg-green-50 border border-green-200 px-5 py-4 mb-6">
+        <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
+        <div>
+          <p className="text-sm font-semibold text-green-800">Payment Received</p>
+          <p className="text-xs text-green-700 mt-0.5">Your payment has been confirmed. We are preparing your order.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'awaiting_payment') {
+    return (
+      <div className="flex items-start gap-3 bg-yellow-50 border border-yellow-200 px-5 py-4 mb-6">
+        <Clock className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-semibold text-yellow-800">Awaiting Payment</p>
+          <p className="text-xs text-yellow-700 mt-0.5">Your Stripe payment is being processed. Your order will be confirmed once payment clears.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'pending') {
+    if (paymentMethod === 'interac_etransfer') {
+      return (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 px-5 py-4 mb-6">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-amber-800">Payment Pending — Interac e-Transfer Required</p>
+            <p className="text-xs text-amber-700 mt-1">
+              Please send your e-Transfer to <span className="font-semibold">info@atnmegastore.ca</span> within <span className="font-semibold">7 days</span> and use{' '}
+              <span className="font-semibold">#{paddedId}</span> as the transfer comment.
+              Orders not paid within 7 days will be automatically cancelled.
+            </p>
+          </div>
+        </div>
+      );
+    }
+    if (paymentMethod === 'pay_at_store') {
+      return (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 px-5 py-4 mb-6">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-amber-800">Payment Pending — Pay at Store</p>
+            <p className="text-xs text-amber-700 mt-1">
+              Please visit us within <span className="font-semibold">7 days</span> and quote order{' '}
+              <span className="font-semibold">#{paddedId}</span> at the counter.
+              Orders not paid within 7 days will be automatically cancelled.
+            </p>
+          </div>
+        </div>
+      );
+    }
+  }
+
+  if (status === 'cancelled') {
+    return (
+      <div className="flex items-center gap-3 bg-red-50 border border-red-200 px-5 py-4 mb-6">
+        <XCircle className="w-5 h-5 text-red-500 shrink-0" />
+        <div>
+          <p className="text-sm font-semibold text-red-800">Order Cancelled</p>
+          <p className="text-xs text-red-700 mt-0.5">This order has been cancelled. Please contact us if you have questions.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 export default function OrderConfirmationPage() {
@@ -118,6 +195,9 @@ export default function OrderConfirmationPage() {
           <span>${parseFloat(order.total).toFixed(2)}</span>
         </div>
       </div>
+
+      {/* Payment status */}
+      <PaymentStatusBlock status={order.status} paymentMethod={order.payment_method} orderId={order.id} />
 
       {/* Guest account prompt */}
       {isGuest && token && !registered && (
