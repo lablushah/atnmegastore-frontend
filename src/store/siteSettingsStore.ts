@@ -21,8 +21,9 @@ export interface SiteSettings {
   youtube_url:             string;
   meta_description:        string;
   meta_keywords:           string;
-  free_shipping_threshold: number;
-  free_shipping_enabled:   boolean;
+  free_shipping_threshold:  number;
+  free_shipping_enabled:    boolean;
+  payment_deadline_days:    number;
 }
 
 const DEFAULTS: SiteSettings = {
@@ -46,6 +47,7 @@ const DEFAULTS: SiteSettings = {
   meta_keywords:           'Bengali books Toronto, Islamic books Canada, cultural gifts, ATN Book & Crafts',
   free_shipping_threshold: 49,
   free_shipping_enabled:   true,
+  payment_deadline_days:   7,
 };
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -76,6 +78,7 @@ export const useSiteSettingsStore = create<SiteSettingsStore>()(
               ...data,
               free_shipping_threshold: Number(data.free_shipping_threshold ?? DEFAULTS.free_shipping_threshold),
               free_shipping_enabled:   data.free_shipping_enabled === true || data.free_shipping_enabled === 'true',
+              payment_deadline_days:   Number(data.payment_deadline_days ?? DEFAULTS.payment_deadline_days),
             },
             loaded: true,
             loadedAt: Date.now(),

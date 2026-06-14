@@ -6,6 +6,7 @@ import { Link } from '@/navigation';
 import { CheckCircle, Package, UserPlus, LogIn, Clock, CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
 import PageLoader from '@/components/ui/PageLoader';
 import { useAuthStore } from '@/store/authStore';
+import { useSiteSettingsStore } from '@/store/siteSettingsStore';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -22,8 +23,9 @@ interface Order {
   items: { id: number; quantity: number; price: string; product: { name: string; image?: string } | null }[];
 }
 
-function PaymentStatusBlock({ status, paymentMethod, orderId }: { status: string; paymentMethod: string; orderId: number }) {
+function PaymentStatusBlock({ status, paymentMethod, orderId, deadlineDays }: { status: string; paymentMethod: string; orderId: number; deadlineDays: number }) {
   const paddedId = String(orderId).padStart(6, '0');
+  const deadline = deadlineDays === 1 ? '1 day' : `${deadlineDays} days`;
 
   if (status === 'paid') {
     return (
@@ -59,7 +61,7 @@ function PaymentStatusBlock({ status, paymentMethod, orderId }: { status: string
             <p className="text-xs text-amber-700 mt-1">
               Please send your e-Transfer to <span className="font-semibold">info@atnmegastore.ca</span> within <span className="font-semibold">7 days</span> and use{' '}
               <span className="font-semibold">#{paddedId}</span> as the transfer comment.
-              Orders not paid within 7 days will be automatically cancelled.
+              Orders not paid within {deadline} will be automatically cancelled.
             </p>
           </div>
         </div>
@@ -74,7 +76,7 @@ function PaymentStatusBlock({ status, paymentMethod, orderId }: { status: string
             <p className="text-xs text-amber-700 mt-1">
               Please visit us within <span className="font-semibold">7 days</span> and quote order{' '}
               <span className="font-semibold">#{paddedId}</span> at the counter.
-              Orders not paid within 7 days will be automatically cancelled.
+              Orders not paid within {deadline} will be automatically cancelled.
             </p>
           </div>
         </div>
@@ -103,6 +105,8 @@ export default function OrderConfirmationPage() {
   const { user } = useAuthStore();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const deadlineDays = useSiteSettingsStore(s => s.settings.payment_deadline_days);
 
   // Registration form state
   const [password, setPassword]       = useState('');
@@ -197,7 +201,7 @@ export default function OrderConfirmationPage() {
       </div>
 
       {/* Payment status */}
-      <PaymentStatusBlock status={order.status} paymentMethod={order.payment_method} orderId={order.id} />
+      <PaymentStatusBlock status={order.status} paymentMethod={order.payment_method} orderId={order.id} deadlineDays={deadlineDays} />
 
       {/* Guest account prompt */}
       {isGuest && token && !registered && (
