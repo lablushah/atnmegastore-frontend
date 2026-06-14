@@ -15,7 +15,27 @@ export default function OrderConfirmationPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get(`/orders/${id}`).then(r => setOrder(r.data)).catch(() => {}).finally(() => setLoading(false));
+    const email = new URLSearchParams(window.location.search).get('email');
+
+    const load = async () => {
+      try {
+        // Authenticated customers — works directly
+        const { data } = await api.get(`/orders/${id}`);
+        setOrder(data);
+      } catch {
+        // Guest users — fall back to public lookup using email from URL
+        if (email) {
+          try {
+            const { data } = await api.post('/orders/lookup', { order_id: Number(id), email });
+            setOrder(data);
+          } catch {}
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
   }, [id]);
 
   if (loading) return <PageLoader />;
